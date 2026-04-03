@@ -226,7 +226,7 @@ func main() {
     "network": "TRON",
     "receive_address": "TXXXXXXXXXXXXXXXXXXxx",
     "expiration_time": 10,
-    "checkout_url": "http://your-server:8080/pay/checkout-counter/EP20240101XXXXXXXX"
+    "checkout_url": "http://your-server:8000/pay/checkout-counter/EP20240101XXXXXXXX"
   }
 }
 ```

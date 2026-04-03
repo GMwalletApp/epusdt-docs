@@ -10,7 +10,6 @@ Before deployment, make sure your BaoTa server has:
 
 - **Nginx** installed
 - **MySQL** installed and running
-- **Redis** installed and running
 - **Supervisor** or **Supervisord** available
 - A public domain already pointed to the server
 - A TronGrid API key
@@ -22,9 +21,8 @@ In a BaoTa-based setup, Epusdt usually runs as its own Go service behind an Ngin
 Typical architecture:
 
 - Nginx handles public HTTP/HTTPS traffic
-- Epusdt listens locally on `127.0.0.1:8080`
+- Epusdt listens locally on `127.0.0.1:8000`
 - MySQL stores order and wallet data
-- Redis handles queue/cache workloads
 - Supervisor keeps the process alive
 
 ## Step 1: Create a Website in BaoTa
@@ -50,7 +48,7 @@ Example structure:
 ```text
 /www/wwwroot/pay.example.com/
 ├── epusdt
-├── config.yml
+├── .env
 ├── data/
 └── logs/
 ```
@@ -73,28 +71,36 @@ Create a MySQL database from BaoTa, then record the following:
 
 Import the schema required by Epusdt if the release package does not initialize it automatically.
 
-## Step 4: Prepare `config.yml`
+## Step 4: Prepare `.env`
 
-Create or edit `config.yml` in the application directory:
+Create or edit `.env` in the application directory:
 
-```yaml
-app_name: Epusdt
-app_uri: https://pay.example.com
-http_listen: 127.0.0.1:8080
+```dotenv
+app_name=epusdt
+app_uri=https://pay.example.com
+http_listen=:8000
 
-db_driver: mysql
-db_dsn: epusdt:strong-password@tcp(127.0.0.1:3306)/epusdt?charset=utf8mb4&parseTime=True&loc=Local
+# Database type: sqlite (default), mysql, postgres
+db_type=sqlite
 
-redis_addr: 127.0.0.1:6379
-redis_password: ""
-redis_db: 0
+# SQLite (default, no extra DB needed)
+sqlite_database_filename=
 
-tron_api_key: your_trongrid_api_key
-usdt_rate: 1
-cny_rate: 7.20
-order_expiration_time: 10
-callback_timeout: 30
-api_auth_token: change-this-to-a-long-random-token
+# MySQL (uncomment if using MySQL)
+# db_type=mysql
+# mysql_host=127.0.0.1
+# mysql_port=3306
+# mysql_user=epusdt
+# mysql_passwd=your_password
+# mysql_database=epusdt
+
+tron_grid_api_key=your_trongrid_api_key
+order_expiration_time=10
+api_auth_token=change-this-to-a-long-random-token
+
+# Telegram bot (optional)
+tg_bot_token=
+tg_manage=
 ```
 
 ## Step 5: Configure reverse proxy
@@ -104,7 +110,7 @@ Epusdt has its own HTTP service, so BaoTa should proxy traffic to it.
 In BaoTa website settings, configure reverse proxy to:
 
 ```text
-http://127.0.0.1:8080
+http://127.0.0.1:8000
 ```
 
 Important points:
@@ -143,7 +149,7 @@ After saving the supervisor task:
 ## Recommended BaoTa Settings
 
 - Enable automatic HTTPS certificate renewal
-- Restrict direct access to sensitive files such as `config.yml`
+- Restrict direct access to sensitive files such as `.env`
 - Back up your MySQL database regularly
 - Monitor `logs/` for callback and chain polling errors
 

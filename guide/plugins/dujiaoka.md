@@ -12,7 +12,7 @@ Before you begin, make sure the following are ready:
 |-------------|---------|
 | Dujiaoka | Installed and running with admin panel accessible |
 | Epusdt | Deployed and reachable from the Dujiaoka server |
-| Epusdt API token | The `api_auth_token` value from your Epusdt `.env` or `config.yml` |
+| Epusdt API token | The `api_auth_token` value from your Epusdt `.env` or `.env` |
 | Network access | Dujiaoka server can reach the Epusdt API endpoint; Epusdt can reach Dujiaoka's callback URL |
 
 ## Integration Steps
@@ -37,7 +37,7 @@ Enter the following values:
 |-------|-------|-------------|
 | Gateway URL | Public base URL of the running Epusdt service | Use the full base URL that Dujiaoka can reach. A default direct deployment commonly listens on port `8080`. |
 | API Endpoint | `/payments/epusdt/v1/order/create-transaction` | The order creation endpoint. This is the current recommended route. |
-| App Token / Secret Key | The exact `api_auth_token` value from Epusdt | Must match the `api_auth_token` configured in your Epusdt `.env` or `config.yml`. |
+| App Token / Secret Key | The exact `api_auth_token` value from Epusdt | Must match the `api_auth_token` configured in your Epusdt `.env` or `.env`. |
 | Callback URL (notify_url) | Automatic | Epusdt handles callback delivery automatically based on the `notify_url` passed during order creation. Dujiaoka sets this field when creating orders. |
 
 ### 5. Enable the Payment Gateway
@@ -80,7 +80,7 @@ To migrate, simply update the API endpoint field in your Dujiaoka payment gatewa
 
 **Cause:** The secret key configured in Dujiaoka does not match the `api_auth_token` in your Epusdt deployment.
 
-**Fix:** Open your Epusdt `.env` or `config.yml`, copy the exact value of `api_auth_token`, and paste it into the Dujiaoka payment gateway settings. Make sure there are no extra spaces or line breaks.
+**Fix:** Open your Epusdt `.env` or `.env`, copy the exact value of `api_auth_token`, and paste it into the Dujiaoka payment gateway settings. Make sure there are no extra spaces or line breaks.
 
 ### Callback Not Received
 
@@ -100,7 +100,7 @@ To migrate, simply update the API endpoint field in your Dujiaoka payment gatewa
 
 **Cause:** The `order_expiration_time` in Epusdt is too short for the customer to complete payment.
 
-**Fix:** Increase the `order_expiration_time` value in your Epusdt `.env` or `config.yml`. The default is typically 10 minutes. For slower networks or manual transfers, consider setting it to 15–30 minutes.
+**Fix:** Increase the `order_expiration_time` value in your Epusdt `.env` or `.env`. The default is typically 10 minutes. For slower networks or manual transfers, consider setting it to 15–30 minutes.
 
 ### Checkout Page Does Not Load
 

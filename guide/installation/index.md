@@ -8,7 +8,7 @@ Epusdt supports multiple deployment methods so you can choose the one that best 
 
 **Best for most users.**
 
-Docker is the fastest and cleanest way to deploy Epusdt. You can launch the service with a single image and keep configuration in environment variables or a mounted `config.yml` file.
+Docker is the fastest and cleanest way to deploy Epusdt. You can launch the service with a single image and keep configuration in environment variables or a mounted `.env` file.
 
 Recommended when you want:
 

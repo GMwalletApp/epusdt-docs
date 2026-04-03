@@ -12,7 +12,7 @@
 |------|------|
 | 独角数卡 | 已安装并运行，管理后台可正常访问 |
 | Epusdt | 已部署且独角数卡服务器可以访问 Epusdt |
-| Epusdt API Token | 你的 Epusdt `.env` 或 `config.yml` 中配置的 `api_auth_token` 值 |
+| Epusdt API Token | 你的 Epusdt `.env` 或 `.env` 中配置的 `api_auth_token` 值 |
 | 网络互通 | 独角数卡服务器可以访问 Epusdt API 端点；Epusdt 可以访问独角数卡的回调地址 |
 
 ## 集成步骤
@@ -37,7 +37,7 @@
 |--------|-----|------|
 | 网关地址 | Epusdt 服务的公网访问地址 | 填写独角数卡可以访问到的 Epusdt 完整地址。默认直接部署通常监听 `8080` 端口。 |
 | API 端点 | `/payments/epusdt/v1/order/create-transaction` | 订单创建接口路径，这是当前推荐的路由。 |
-| App Token / 密钥 | Epusdt 中 `api_auth_token` 的确切值 | 必须与 Epusdt `.env` 或 `config.yml` 中配置的 `api_auth_token` 完全一致。 |
+| App Token / 密钥 | Epusdt 中 `api_auth_token` 的确切值 | 必须与 Epusdt `.env` 或 `.env` 中配置的 `api_auth_token` 完全一致。 |
 | 回调地址（notify_url） | 自动处理 | Epusdt 会根据创建订单时传入的 `notify_url` 自动发送回调通知。独角数卡在创建订单时会自动设置此字段。 |
 
 ### 5. 启用支付方式
@@ -80,7 +80,7 @@
 
 **原因：** 独角数卡中配置的密钥与 Epusdt 部署中的 `api_auth_token` 不一致。
 
-**解决方法：** 打开 Epusdt 的 `.env` 或 `config.yml`，复制 `api_auth_token` 的确切值，粘贴到独角数卡支付网关设置中。确保没有多余的空格或换行符。
+**解决方法：** 打开 Epusdt 的 `.env` 或 `.env`，复制 `api_auth_token` 的确切值，粘贴到独角数卡支付网关设置中。确保没有多余的空格或换行符。
 
 ### 回调未收到
 
@@ -100,7 +100,7 @@
 
 **原因：** Epusdt 中的 `order_expiration_time` 设置过短，客户未能在有效期内完成支付。
 
-**解决方法：** 增大 Epusdt `.env` 或 `config.yml` 中的 `order_expiration_time` 值。默认通常为 10 分钟。对于较慢的网络或手动转账场景，建议设置为 15–30 分钟。
+**解决方法：** 增大 Epusdt `.env` 或 `.env` 中的 `order_expiration_time` 值。默认通常为 10 分钟。对于较慢的网络或手动转账场景，建议设置为 15–30 分钟。
 
 ### 收银台页面无法加载
 

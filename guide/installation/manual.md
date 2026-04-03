@@ -6,7 +6,6 @@ This guide covers installing Epusdt from source with full manual control over th
 
 - **Go 1.16+** installed ([Install Go](https://go.dev/doc/install))
 - **Git**
-- **Redis** for queue and cache support
 - **MySQL** or **PostgreSQL** (optional — SQLite is the default)
 - A Linux server (recommended for production)
 - A public domain pointed to your server
@@ -50,7 +49,7 @@ app_uri=https://pay.example.com
 log_level=info
 http_access_log=false
 sql_debug=false
-http_listen=:8080
+http_listen=:8000
 
 static_path=/static
 runtime_root_path=/runtime
@@ -96,12 +95,6 @@ runtime_sqlite_filename=epusdt-runtime.db
 queue_concurrency=10
 queue_poll_interval_ms=1000
 callback_retry_base_seconds=5
-
-# Redis
-redis_host=127.0.0.1
-redis_port=6379
-redis_password=
-redis_db=0
 
 # Telegram bot
 tg_bot_token=
@@ -149,8 +142,8 @@ chmod +x epusdt
 
 You should see output confirming the HTTP server has started. Visit:
 
-- `http://your-server:8080` — public checkout page
-- `http://your-server:8080/admin` — admin panel
+- `http://your-server:8000` — public checkout page
+- `http://your-server:8000/admin` — admin panel
 
 Press `Ctrl+C` to stop the foreground process when you are ready to set up a proper service manager.
 
@@ -223,7 +216,7 @@ server {
     ssl_certificate_key /etc/letsencrypt/live/pay.example.com/privkey.pem;
 
     location / {
-        proxy_pass http://127.0.0.1:8080;
+        proxy_pass http://127.0.0.1:8000;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;

@@ -4,232 +4,195 @@
 
 ## 前置条件
 
-开始之前，请确认你的服务器已经安装：
+- 已安装 Docker 和 Docker Compose（参考 [Docker 官方文档](https://docs.docker.com/engine/install/)）
+- 一个指向服务器的域名（用于收银台页面）
+- TronGrid API Key（[前往注册](https://www.trongrid.io/)）
 
-- Docker
-- Docker Compose
-
-如果尚未安装，可以先参考 Docker 官方文档完成安装。
-
-## Docker 镜像
-
-Epusdt 官方镜像地址：
+## 第一步：创建工作目录
 
 ```bash
-ghcr.io/gmwalletapp/epusdt:latest
+mkdir epusdt && cd epusdt
 ```
 
-## 部署目录准备
+## 第二步：创建 `.env` 配置文件
 
-建议先创建一个独立目录保存 `docker-compose.yml` 和 `.env` 文件：
+将以下内容保存为 `env`（注意：文件名就是 `env`，没有点，docker-compose 会挂载为 `/app/.env`）：
 
-```bash
-mkdir -p /opt/epusdt
-cd /opt/epusdt
+```dotenv
+app_name=epusdt
+app_uri=https://pay.example.com
+log_level=info
+http_access_log=false
+sql_debug=false
+http_listen=:8000
+
+static_path=/static
+runtime_root_path=/runtime
+
+log_save_path=/logs
+log_max_size=32
+log_max_age=7
+max_backups=3
+
+# 数据库类型：sqlite（默认）、mysql、postgres
+db_type=sqlite
+
+# SQLite 配置（默认，无需额外数据库服务）
+sqlite_database_filename=
+sqlite_table_prefix=
+
+# MySQL 配置（如需使用 MySQL 请填写）
+mysql_host=127.0.0.1
+mysql_port=3306
+mysql_user=mysql_user
+mysql_passwd=mysql_password
+mysql_database=database_name
+mysql_table_prefix=
+
+# PostgreSQL 配置（如需使用 PostgreSQL 请填写）
+postgres_host=127.0.0.1
+postgres_port=5432
+postgres_user=postgres_user
+postgres_passwd=postgres_password
+postgres_database=database_name
+postgres_table_prefix=
+
+# SQLite 运行时存储
+runtime_sqlite_filename=epusdt-runtime.db
+
+# 队列配置
+queue_concurrency=10
+queue_poll_interval_ms=1000
+callback_retry_base_seconds=5
+
+# Telegram 机器人
+tg_bot_token=
+tg_proxy=
+tg_manage=
+
+# API 鉴权 Token（请修改为随机字符串）
+api_auth_token=
+
+# 订单配置
+order_expiration_time=10
+order_notice_max_retry=0
+forced_usdt_rate=
+api_rate_url=
+tron_grid_api_key=
 ```
 
-## 第一步：创建 `docker-compose.yml`
+**必须修改的字段：**
 
-在部署目录中创建 `docker-compose.yml` 文件：
+| 字段 | 说明 |
+|------|------|
+| `app_uri` | 你的公网域名，例如 `https://pay.example.com` |
+| `api_auth_token` | API 鉴权 Token，建议设置为随机字符串 |
+| `tron_grid_api_key` | TronGrid API Key，链上监听必需 |
+| `tg_bot_token` | Telegram 机器人 Token（推荐） |
+| `tg_manage` | Telegram 管理员用户 ID（推荐） |
+
+## 第三步：创建 `docker-compose.yaml`
 
 ```yaml
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: epusdt-mysql
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: root123456
-      MYSQL_DATABASE: epusdt
-      MYSQL_USER: epusdt
-      MYSQL_PASSWORD: epusdt123456
-    command:
-      - --default-authentication-plugin=mysql_native_password
-      - --character-set-server=utf8mb4
-      - --collation-server=utf8mb4_unicode_ci
-    volumes:
-      - ./data/mysql:/var/lib/mysql
-    ports:
-      - "3306:3306"
-
-  redis:
-    image: redis:7-alpine
-    container_name: epusdt-redis
-    restart: always
-    command: redis-server --appendonly yes --requirepass redis123456
-    volumes:
-      - ./data/redis:/data
-    ports:
-      - "6379:6379"
-
   epusdt:
-    image: ghcr.io/gmwalletapp/epusdt:latest
-    container_name: epusdt
+    image: gmwallet/epusdt:alpine
     restart: always
-    depends_on:
-      - mysql
-      - redis
-    env_file:
-      - .env
+    volumes:
+      - ./env:/app/.env
     ports:
-      - "8080:8080"
+      - "8000:8000"
 ```
 
-上面的示例包含三个服务：
+> 默认使用 SQLite，无需额外的数据库或 Redis 服务。如需使用 MySQL 或 PostgreSQL，在 `env` 中修改 `db_type` 并自行配置对应数据库服务。
 
-- `mysql`：用于存储订单和业务数据
-- `redis`：用于缓存、队列和任务处理
-- `epusdt`：Epusdt 主服务
-
-## 第二步：配置 `.env`
-
-在同一目录下创建 `.env` 文件：
-
-```dotenv
-app_name=Epusdt
-app_uri=https://pay.example.com
-
-db_type=mysql
-db_host=mysql
-db_port=3306
-db_name=epusdt
-db_user=epusdt
-db_password=epusdt123456
-
-redis_host=redis
-redis_port=6379
-redis_password=redis123456
-redis_db=0
-
-tron_grid_api_key=your_trongrid_api_key
-
-usdt_rate=1
-cny_rate=7.2
-order_expiration_time=15
-callback_timeout=30
-
-telegram_bot_token=1234567890:AAExampleBotToken1234567890
-telegram_bot_admin_id=123456789
-```
-
-### `.env` 配置字段说明
-
-下表列出了常用且必须关注的环境变量：
-
-| 字段名 | 类型 | 说明 | 示例 |
-|--------|------|------|------|
-| `app_name` | string | 应用名称，显示在页面或后台中 | `Epusdt` |
-| `app_uri` | string | Epusdt 对外访问地址，必须使用公网可访问域名或完整 URL | `https://pay.example.com` |
-| `db_type` | string | 数据库类型，可选 `sqlite`、`mysql`、`postgres` | `mysql` |
-| `db_host` | string | 数据库主机地址，Docker Compose 中通常填写服务名 | `mysql` |
-| `db_port` | int | 数据库端口 | `3306` |
-| `db_name` | string | 数据库名称 | `epusdt` |
-| `db_user` | string | 数据库用户名 | `epusdt` |
-| `db_password` | string | 数据库密码 | `epusdt123456` |
-| `redis_host` | string | Redis 主机地址 | `redis` |
-| `redis_port` | int | Redis 端口 | `6379` |
-| `redis_password` | string | Redis 密码，没有密码时可留空 | `redis123456` |
-| `redis_db` | int | Redis 数据库编号 | `0` |
-| `tron_grid_api_key` | string | TronGrid API Key，用于查询 TRON/TRC20 链上数据 | `9f6fxxxxxxxxxxxxxxxxxxxx` |
-| `usdt_rate` | float | USDT 汇率，通常可设为 `1`，用于业务换算 | `1` |
-| `cny_rate` | float | 人民币汇率，用于金额换算 | `7.2` |
-| `order_expiration_time` | int | 订单过期时间，单位分钟 | `15` |
-| `callback_timeout` | int | 回调超时时间，单位秒 | `30` |
-| `telegram_bot_token` | string | Telegram 机器人 Token，用于消息通知和管理功能 | `1234567890:AAExampleBotToken1234567890` |
-| `telegram_bot_admin_id` | string/int | Telegram 管理员用户 ID | `123456789` |
-
-### 配置建议
-
-- 如果使用 Docker Compose，`db_host` 和 `redis_host` 直接写服务名即可，例如 `mysql`、`redis`
-- `app_uri` 必须与最终访问地址一致，否则回调、跳转或后台访问可能异常
-- `tron_grid_api_key` 建议务必填写，否则链上查询稳定性会受影响
-- 若你暂时不使用 Telegram 管理功能，可先保留相关字段，后续再补充
-
-## 第三步：启动服务
-
-配置完成后，在当前目录执行：
+## 第四步：启动服务
 
 ```bash
 docker compose up -d
 ```
 
-执行成功后，可使用以下命令查看运行状态：
+查看运行状态：
 
 ```bash
 docker compose ps
 ```
 
-如果 `mysql`、`redis`、`epusdt` 三个服务都处于运行状态，说明容器已经成功启动。
-
-## 查看日志
-
-如果启动失败，或者想实时查看主服务日志，可以执行：
+查看日志：
 
 ```bash
 docker compose logs -f epusdt
 ```
 
-你也可以分别检查数据库或 Redis 日志：
+## 第五步：配置反向代理（推荐）
 
-```bash
-docker compose logs -f mysql
-docker compose logs -f redis
+**Nginx 示例：**
+
+```nginx
+server {
+    listen 443 ssl http2;
+    server_name pay.example.com;
+
+    ssl_certificate     /path/to/cert.pem;
+    ssl_certificate_key /path/to/key.pem;
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
 ```
 
-## 访问服务
+**Caddy 示例（自动 HTTPS）：**
 
-默认情况下，上面的示例会将 Epusdt 暴露到主机的 `8080` 端口，因此可以通过以下地址访问：
-
-```text
-http://服务器IP:8080
+```
+pay.example.com {
+    reverse_proxy 127.0.0.1:8000
+}
 ```
 
-如果你已经配置了域名反向代理和 HTTPS，则应通过 `.env` 中设置的 `app_uri` 访问。
+## 配置说明
 
-管理后台通常可通过以下路径访问：
+| 字段 | 说明 | 是否必须 |
+|------|------|----------|
+| `app_uri` | 公网访问域名 | ✅ |
+| `api_auth_token` | API 鉴权 Token | ✅ |
+| `tg_bot_token` | Telegram 机器人 Token | 推荐 |
+| `tg_manage` | Telegram 管理员 ID | 推荐 |
+| `tron_grid_api_key` | TronGrid API Key | 推荐 |
+| `db_type` | 数据库类型（sqlite/mysql/postgres） | 可选 |
+| `order_expiration_time` | 订单过期时间（分钟，默认 10） | 可选 |
+| `forced_usdt_rate` | 强制指定汇率 | 可选 |
+| `api_rate_url` | 自定义汇率 API | 可选 |
 
-```text
-https://pay.example.com/admin
-```
-
-## 更新镜像与服务
-
-后续更新 Epusdt 时，可在部署目录执行：
+## 更新
 
 ```bash
 docker compose pull && docker compose up -d
 ```
 
-这条命令会先拉取最新镜像，再以后台方式重建并启动容器。
-
 ## 常见问题
 
-### 1. 容器启动后无法访问
+### 容器启动失败
 
-请检查：
+查看日志排查：
 
-- 服务器安全组是否放行 `8080` 端口
-- 服务器防火墙是否允许访问该端口
-- `docker compose ps` 是否显示服务正常运行
+```bash
+docker compose logs epusdt
+```
 
-### 2. Epusdt 无法连接 MySQL 或 Redis
+### 端口冲突
 
-请检查：
+修改 `docker-compose.yaml` 中的端口映射：
 
-- `.env` 中的主机名是否填写为 Compose 服务名
-- 用户名和密码是否与 `docker-compose.yml` 中保持一致
-- 容器是否都已成功启动
+```yaml
+ports:
+  - "9000:8000"
+```
 
-### 3. 链上支付监听不稳定
+### 使用 MySQL 或 PostgreSQL
 
-通常与 `tron_grid_api_key` 未配置或配置错误有关。请重新生成并确认该值可用。
-
-## 小结
-
-Docker Compose 是最推荐的部署方式之一。你只需要：
-
-1. 创建 `docker-compose.yml`
-2. 配置 `.env`
-3. 执行 `docker compose up -d`
-
-完成后即可快速运行 Epusdt，并在后续通过 `docker compose pull && docker compose up -d` 轻松升级。
+在 `env` 中修改 `db_type` 为 `mysql` 或 `postgres`，并填写对应数据库配置字段。如使用 Docker Compose 管理数据库，`db_host` 填写服务名即可。

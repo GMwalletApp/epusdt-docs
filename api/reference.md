@@ -1,121 +1,109 @@
 # API Reference
 
-This section covers the Epusdt HTTP API — everything you need to integrate USDT payments into your application.
+This section documents the current Epusdt HTTP API for creating payment orders.
 
 ## Base URL
 
-All API requests use your deployed Epusdt server as the base URL:
+Use your deployed Epusdt server as the base URL:
 
-```
-http://your-server:8080
+```text
+http://your-server:8000
 ```
 
-In production, always use HTTPS with a reverse proxy (Nginx, Caddy, etc.):
+For production, put Epusdt behind HTTPS:
 
-```
+```text
 https://pay.example.com
 ```
 
-## Authentication
+## Authentication and Signature
 
-Epusdt uses a shared secret token for API authentication. The token is configured in your `.env` file as `app_token`.
+Epusdt does **not** use Bearer tokens or HMAC signing for the payment API.
 
-You can pass the token in any of the following ways:
+Instead, requests are signed with **MD5** using the `api_auth_token` value from your `.env` file.
 
-### 1. Authorization Header (Recommended)
+Signature rules:
 
-```http
-Authorization: Bearer YOUR_API_TOKEN
+1. Collect all **non-empty** request parameters except `signature`
+2. Sort parameters by key in ASCII ascending order
+3. Join them as `key=value&key=value`
+4. Append your `api_auth_token` directly to the end of that string
+5. Compute the **MD5** hash
+6. Convert the result to **lowercase** and send it as `signature`
+
+Example:
+
+```text
+amount=42&notify_url=http://example.com/notify&order_id=20220201030210321&redirect_url=http://example.com/redirect
 ```
 
-### 2. Query Parameter
+Append the token:
 
+```text
+amount=42&notify_url=http://example.com/notify&order_id=20220201030210321&redirect_url=http://example.com/redirectepusdt_password_xasddawqe
 ```
-POST /payments/epusdt/v1/order/create-transaction?token=YOUR_API_TOKEN
-```
 
-### 3. Request Body Field
-
-Include `token` as a field in the JSON request body.
-
-::: warning
-Keep your API token secret. Never expose it in client-side code or public repositories.
-:::
+Then compute lowercase MD5.
 
 ## Request Format
 
-- All POST requests accept `application/json` or `application/x-www-form-urlencoded`
-- All GET requests use standard query parameters
+- Method: `POST`
+- Content type: `application/json` or `application/x-www-form-urlencoded`
 - Character encoding: UTF-8
 
 ## Response Format
 
-All responses are JSON objects with a consistent structure:
-
-### Success Response
+Successful HTTP responses return JSON in this shape:
 
 ```json
 {
-  "status": 1,
-  "message": "ok",
+  "status_code": 200,
+  "message": "success",
   "data": {
-    // Business data
-  }
-}
-```
-
-### Error Response
-
-```json
-{
-  "status": 400,
-  "message": "invalid params",
-  "data": null
+    "trade_id": "202203271648380592218340",
+    "order_id": "9",
+    "amount": 53,
+    "actual_amount": 7.9104,
+    "token": "TNEns8t9jbWENbStkQdVQtHMGpbsYsQjZK",
+    "expiration_time": 1648381192,
+    "payment_url": "http://example.com/pay/checkout-counter/202203271648380592218340"
+  },
+  "request_id": "b1344d70-ff19-4543-b601-37abfb3b3686"
 }
 ```
 
 ## Status Codes
 
+`status_code` values currently documented by the upstream project:
+
 | Code | Meaning |
 |------|---------|
-| `1` | Success |
-| `400` | Bad request / invalid parameters |
-| `401` | Unauthorized (invalid or missing token) |
-| `10001` | Order not found |
-| `10002` | Order expired |
-| `10003` | Duplicate order ID |
-| `10004` | Amount out of range |
-| `10005` | No available wallet address |
-| `10006` | Currency not supported |
-| `10007` | Network not supported |
-| `10008` | Signature verification failed |
-| `10009` | Order already paid |
-| `10010` | System busy, try again later |
+| `200` | Success |
+| `400` | System error |
+| `401` | Signature verification failed |
+| `10002` | Payment transaction already exists |
+| `10003` | No available wallet address |
+| `10004` | Invalid payment amount / cannot satisfy minimum payment unit |
+| `10005` | No available amount channel |
+| `10006` | Exchange-rate calculation error |
+| `10007` | Order block already processed |
+| `10008` | Order does not exist |
+| `10009` | Failed to parse parameters |
 
-::: tip
-Status code `1` indicates success. Any other value indicates an error — always check the `message` field for details.
-:::
-
-## Available Endpoints
+## Available Endpoint
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/payments/epusdt/v1/order/create-transaction` | [Create a payment transaction](/api/payment) |
-| GET | `/pay/checkout-counter/:trade_id` | Redirect user to the payment page |
-| GET | `/pay/check-status/:trade_id` | Check order payment status |
-| POST | `/api/v1/order/create-transaction` | [Legacy: Create transaction](/api/legacy) (deprecated) |
-| GET | `/api/v1/rate` | [Legacy: Get exchange rate](/api/legacy#exchange-rate) |
+| `POST` | `/payments/epusdt/v1/order/create-transaction` | Create a payment transaction |
 
 ## Security Recommendations
 
-- Always use **HTTPS** in production with a valid TLS certificate
-- Store the API token on the server side only — never in frontend code
-- Validate callback signatures in your business system
-- Set reasonable `order_expiration_time` and `callback_timeout` values in your config
-- Restrict access to the admin panel and `.env` file
-- Use IP whitelisting for callback URLs when possible
+- Keep `api_auth_token` secret and store it only on the server side
+- Always use HTTPS in production
+- Validate callback signatures before marking an order as paid
+- Restrict access to your `.env` file
+- Use a stable `tron_grid_api_key` for TRC20 monitoring
 
-## Next Steps
+## Next Step
 
-- [Payment API](/api/payment) — full integration guide with code examples
-- [Legacy API](/api/legacy) — deprecated endpoints and migration guide
+- [Payment API](/api/payment) — full request, response, callback, and signing details

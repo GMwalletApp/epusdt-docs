@@ -7,7 +7,7 @@
 所有 API 请求都以你部署的 Epusdt 服务地址作为基础 URL：
 
 ```
-http://your-server:8080
+http://your-server:8000
 ```
 
 生产环境建议通过 Nginx、Caddy 等反向代理启用 HTTPS：
