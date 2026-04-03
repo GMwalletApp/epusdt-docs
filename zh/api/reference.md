@@ -98,13 +98,11 @@ POST /payments/epusdt/v1/order/create-transaction?token=YOUR_API_TOKEN
 
 ## 接口列表
 
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| POST | `/payments/epusdt/v1/order/create-transaction` | [创建支付订单](/zh/api/payment) |
-| GET | `/pay/checkout-counter/:trade_id` | 跳转到支付收银台 |
-| GET | `/pay/check-status/:trade_id` | 查询订单支付状态 |
-| POST | `/api/v1/order/create-transaction` | [旧版创建订单接口](/zh/api/legacy)（已废弃） |
-| GET | `/api/v1/rate` | [旧版汇率接口](/zh/api/legacy#exchange-rate) |
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/payments/epusdt/v1/order/create-transaction` | [创建支付订单](/zh/api/payment) |
+| `GET` | `/pay/checkout-counter/:trade_id` | 跳转到支付收银台 |
+| `GET` | `/pay/check-status/:trade_id` | 查询订单支付状态 |
 
 ## 安全建议
 

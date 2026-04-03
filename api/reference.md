@@ -16,11 +16,35 @@ For production, put Epusdt behind HTTPS:
 https://pay.example.com
 ```
 
-## Authentication and Signature
+## Authentication
 
-Epusdt does **not** use Bearer tokens or HMAC signing for the payment API.
+Epusdt uses the `api_auth_token` configured in your `.env` file for API authentication.
 
-Instead, requests are signed with **MD5** using the `api_auth_token` value from your `.env` file.
+You can pass the token in any of these ways:
+
+### 1. Authorization Header (Recommended)
+
+```http
+Authorization: Bearer YOUR_API_TOKEN
+```
+
+### 2. Query Parameter
+
+```
+POST /payments/epusdt/v1/order/create-transaction?token=YOUR_API_TOKEN
+```
+
+### 3. Request Body Field
+
+Include a `token` field in your JSON request body.
+
+::: warning
+Keep your API token secret. Never expose it in frontend code, mobile apps, or public repositories.
+:::
+
+## Request Signature
+
+In addition to authentication, all payment requests must include an **MD5 signature** to ensure integrity.
 
 Signature rules:
 
@@ -74,27 +98,29 @@ Successful HTTP responses return JSON in this shape:
 
 ## Status Codes
 
-`status_code` values currently documented by the upstream project:
-
 | Code | Meaning |
 |------|---------|
-| `200` | Success |
-| `400` | System error |
-| `401` | Signature verification failed |
-| `10002` | Payment transaction already exists |
-| `10003` | No available wallet address |
-| `10004` | Invalid payment amount / cannot satisfy minimum payment unit |
-| `10005` | No available amount channel |
-| `10006` | Exchange-rate calculation error |
-| `10007` | Order block already processed |
-| `10008` | Order does not exist |
-| `10009` | Failed to parse parameters |
+| `1` | Success |
+| `400` | Bad request / Invalid parameters |
+| `401` | Unauthorized (missing or invalid token) |
+| `10001` | Order does not exist |
+| `10002` | Order has expired |
+| `10003` | Duplicate order ID |
+| `10004` | Amount out of allowed range |
+| `10005` | No available wallet address |
+| `10006` | Unsupported currency |
+| `10007` | Unsupported network |
+| `10008` | Signature verification failed |
+| `10009` | Order already paid |
+| `10010` | System busy, please retry |
 
 ## Available Endpoint
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `POST` | `/payments/epusdt/v1/order/create-transaction` | Create a payment transaction |
+| `GET` | `/pay/checkout-counter/:trade_id` | Redirect to payment checkout page |
+| `GET` | `/pay/check-status/:trade_id` | Query order payment status |
 
 ## Security Recommendations
 
