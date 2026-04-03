@@ -67,7 +67,6 @@ export default defineConfig({
               items: [
                 { text: "Overview", link: "/api/reference" },
                 { text: "Payment API", link: "/api/payment" },
-                { text: "Legacy Rate API", link: "/api/legacy" },
               ],
             },
           ],
@@ -127,7 +126,6 @@ export default defineConfig({
               items: [
                 { text: "概览", link: "/zh/api/reference" },
                 { text: "支付接口", link: "/zh/api/payment" },
-                { text: "汇率接口（旧版）", link: "/zh/api/legacy" },
               ],
             },
           ],
