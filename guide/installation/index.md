@@ -23,7 +23,7 @@ Recommended when you want:
 
 **Best for panel-based server administration.**
 
-If you manage servers with BaoTa (宝塔面板), you can deploy Epusdt using your existing web, database, Redis, and supervisor stack.
+If you manage servers with BaoTa (宝塔面板), you can deploy Epusdt using your existing web, database, and supervisor stack.
 
 Recommended when you want:
 
@@ -64,7 +64,7 @@ Prepare the following information first:
 - Your public site domain, such as `https://pay.example.com`
 - A TronGrid API key for stable TRC20 transaction queries
 - Database connection details
-- Redis connection details
+
 - An API token for external integrations
 - Optional Telegram bot token and admin user ID
 
@@ -77,7 +77,6 @@ These settings are commonly required regardless of deployment method:
 | `app_name` | Application name shown in the admin UI |
 | `app_uri` | Public domain used by the checkout page and callbacks |
 | `db_*` | Database connection settings |
-| `redis_*` | Redis queue and cache settings |
 | `tron_api_key` / `tron_grid_api_key` | TronGrid API credential |
 | `usdt_rate` | USDT exchange-rate related setting |
 | `cny_rate` | RMB exchange-rate setting if used |

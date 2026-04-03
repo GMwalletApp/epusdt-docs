@@ -5,7 +5,7 @@
 ::: warning 注意
 这里部署的是 **epusdt-docs 文档站点**，不是 Epusdt 支付服务本身。
 
-Cloudflare Pages 适合托管静态网站，而 Epusdt 服务本体需要运行在支持后端进程、数据库和 Redis 的服务器环境中。
+Cloudflare Pages 适合托管静态网站，而 Epusdt 服务本体需要运行在支持后端进程、数据库的服务器环境中。
 :::
 
 ## 适用场景
@@ -134,13 +134,12 @@ https://your-project-name.pages.dev
 
 ### 1. 为什么不能用 Cloudflare Pages 部署 Epusdt 服务本体？
 
-因为 Cloudflare Pages 本质上是静态站点托管服务，不提供常规意义上的后端常驻进程环境，也不能直接替代 MySQL、Redis 和应用服务器。
+因为 Cloudflare Pages 本质上是静态站点托管服务，不提供常规意义上的后端常驻进程环境，也不能直接替代 MySQL 和应用服务器。
 
 Epusdt 本体依赖：
 
 - 应用进程运行环境
 - 数据库
-- Redis
 - 链上查询能力
 - 业务回调处理能力
 

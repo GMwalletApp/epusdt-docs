@@ -35,7 +35,7 @@ Enter the following values:
 
 | Field | Value | Description |
 |-------|-------|-------------|
-| Gateway URL | Public base URL of the running Epusdt service | Use the full base URL that Dujiaoka can reach. A default direct deployment commonly listens on port `8080`. |
+| Gateway URL | Public base URL of the running Epusdt service | Use the full base URL that Dujiaoka can reach. A default direct deployment commonly listens on port `8000`. |
 | API Endpoint | `/payments/epusdt/v1/order/create-transaction` | The order creation endpoint. This is the current recommended route. |
 | App Token / Secret Key | The exact `api_auth_token` value from Epusdt | Must match the `api_auth_token` configured in your Epusdt `.env` or `.env`. |
 | Callback URL (notify_url) | Automatic | Epusdt handles callback delivery automatically based on the `notify_url` passed during order creation. Dujiaoka sets this field when creating orders. |
