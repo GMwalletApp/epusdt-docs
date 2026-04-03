@@ -35,7 +35,7 @@
 
 | 配置项 | 值 | 说明 |
 |--------|-----|------|
-| 网关地址 | Epusdt 服务的公网访问地址 | 填写独角数卡可以访问到的 Epusdt 完整地址。默认直接部署通常监听 `8080` 端口。 |
+| 网关地址 | Epusdt 服务的公网访问地址 | 填写独角数卡可以访问到的 Epusdt 完整地址。默认监听 `8000` 端口。 |
 | API 端点 | `/payments/epusdt/v1/order/create-transaction` | 订单创建接口路径，这是当前推荐的路由。 |
 | App Token / 密钥 | Epusdt 中 `api_auth_token` 的确切值 | 必须与 Epusdt `.env` 或 `.env` 中配置的 `api_auth_token` 完全一致。 |
 | 回调地址（notify_url） | 自动处理 | Epusdt 会根据创建订单时传入的 `notify_url` 自动发送回调通知。独角数卡在创建订单时会自动设置此字段。 |
