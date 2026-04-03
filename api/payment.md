@@ -29,27 +29,34 @@ POST /payments/gmpay/v1/order/create-transaction
 | `currency` | string | ❌ | Fiat currency code. Default: `cny` |
 | `token` | string | ❌ | Cryptocurrency to receive. Default: `usdt` |
 | `network` | string | ❌ | Blockchain network. Default: `TRON` |
-| `signature` | string | ✅ | HMAC-SHA256 signature (see [Signature Generation](#signature-generation)) |
+| `signature` | string | ✅ | MD5 signature (see [Signature Generation](#signature-generation)) |
 
 ### Signature Generation
 
-The signature ensures request integrity. To generate it:
+The signature ensures request integrity. Generate it with the following rules:
 
-1. Collect all request parameters **except** `signature` itself
-2. Sort parameters alphabetically by key name
-3. Build a query string in `key=value&key=value` format
-4. Compute HMAC-SHA256 using your **app secret key** as the HMAC key
-5. The result (hex-encoded) is your `signature`
+1. Collect all request parameters with **non-empty values** (`''` and `null` are excluded)
+2. Exclude the `signature` field itself
+3. Sort parameters by key name in ASCII order (dictionary order)
+4. Build the string in `key=value&key=value` format
+5. Append your `api_auth_token` **directly to the end** of that string — **do not** add `&` or `=`
+6. Compute the **MD5** hash of the full string and convert it to **lowercase**
 
 #### Example
 
 Given these parameters:
 
 ```
-order_id = "ORDER_20240101_001"
-amount = 100.00
-notify_url = "https://example.com/callback"
-redirect_url = "https://example.com/success"
+order_id = "20220201030210321"
+amount = 42
+notify_url = "http://example.com/notify"
+redirect_url = "http://example.com/redirect"
+```
+
+Token:
+
+```
+api_auth_token = "epusdt_password_xasddawqe"
 ```
 
 **Step 1 — Sort alphabetically:**
@@ -58,154 +65,81 @@ redirect_url = "https://example.com/success"
 amount, notify_url, order_id, redirect_url
 ```
 
-**Step 2 — Build query string:**
+**Step 2 — Build the sorted parameter string:**
 
 ```
-amount=100.00&notify_url=https://example.com/callback&order_id=ORDER_20240101_001&redirect_url=https://example.com/success
+amount=42&notify_url=http://example.com/notify&order_id=20220201030210321&redirect_url=http://example.com/redirect
 ```
 
-**Step 3 — HMAC-SHA256 with your secret key:**
+**Step 3 — Append the token directly at the end:**
 
 ```
-signature = HMAC-SHA256(query_string, your_app_secret)
+amount=42&notify_url=http://example.com/notify&order_id=20220201030210321&redirect_url=http://example.com/redirectepusdt_password_xasddawqe
 ```
+
+**Step 4 — Compute lowercase MD5:**
+
+```
+md5(above) = 1cd4b52df5587cfb1968b0c0c6e156cd
+```
+
+#### Rules
+
+- Exclude empty parameters from signing
+- Exclude the `signature` field itself
+- MD5 output must be lowercase
 
 #### Code Examples
 
 ::: code-group
 
-```python [Python]
-import hmac
-import hashlib
-from urllib.parse import urlencode
-
-def generate_signature(params: dict, secret: str) -> str:
-    """Generate HMAC-SHA256 signature for Epusdt API."""
-    # Remove signature field if present
-    filtered = {k: v for k, v in params.items() if k != "signature"}
-    # Sort by key name
-    sorted_params = sorted(filtered.items())
-    # Build query string
-    query_string = urlencode(sorted_params)
-    # Compute HMAC-SHA256
-    return hmac.new(
-        secret.encode("utf-8"),
-        query_string.encode("utf-8"),
-        hashlib.sha256
-    ).hexdigest()
-
-# Usage
-params = {
-    "order_id": "ORDER_20240101_001",
-    "amount": 100.00,
-    "notify_url": "https://example.com/callback",
-    "redirect_url": "https://example.com/success",
-}
-secret = "your_app_secret_key"
-params["signature"] = generate_signature(params, secret)
-```
-
-```javascript [Node.js]
-const crypto = require("crypto");
-
-function generateSignature(params, secret) {
-  // Remove signature field if present
-  const filtered = Object.entries(params)
-    .filter(([key]) => key !== "signature")
-    .sort(([a], [b]) => a.localeCompare(b));
-
-  // Build query string
-  const queryString = filtered
-    .map(([key, value]) => `${key}=${value}`)
-    .join("&");
-
-  // Compute HMAC-SHA256
-  return crypto
-    .createHmac("sha256", secret)
-    .update(queryString)
-    .digest("hex");
-}
-
-// Usage
-const params = {
-  order_id: "ORDER_20240101_001",
-  amount: 100.0,
-  notify_url: "https://example.com/callback",
-  redirect_url: "https://example.com/success",
-};
-const secret = "your_app_secret_key";
-params.signature = generateSignature(params, secret);
-```
-
 ```php [PHP]
 <?php
-function generateSignature(array $params, string $secret): string {
-    // Remove signature field if present
-    unset($params['signature']);
-    // Sort by key name
-    ksort($params);
-    // Build query string
-    $queryString = http_build_query($params);
-    // Compute HMAC-SHA256
-    return hash_hmac('sha256', $queryString, $secret);
+function epusdtSign(array $parameter, string $signKey): string {
+    ksort($parameter);
+    reset($parameter);
+    $sign = '';
+    foreach ($parameter as $key => $val) {
+        if ($val === '' || $val === null) continue;
+        if ($key === 'signature') continue;
+        if ($sign !== '') $sign .= '&';
+        $sign .= "$key=$val";
+    }
+    return md5($sign . $signKey);
 }
+```
 
-// Usage
-$params = [
-    'order_id'     => 'ORDER_20240101_001',
-    'amount'       => 100.00,
-    'notify_url'   => 'https://example.com/callback',
-    'redirect_url' => 'https://example.com/success',
-];
-$secret = 'your_app_secret_key';
-$params['signature'] = generateSignature($params, $secret);
+```python [Python]
+import hashlib
+
+def epusdt_sign(params: dict, token: str) -> str:
+    filtered = {k: v for k, v in params.items() if v != '' and v is not None and k != 'signature'}
+    sorted_str = '&'.join(f"{k}={v}" for k, v in sorted(filtered.items()))
+    return hashlib.md5((sorted_str + token).encode()).hexdigest()
 ```
 
 ```go [Go]
-package main
-
 import (
-	"crypto/hmac"
-	"crypto/sha256"
-	"encoding/hex"
-	"fmt"
-	"net/url"
-	"sort"
+    "crypto/md5"
+    "fmt"
+    "sort"
+    "strings"
 )
 
-func generateSignature(params map[string]string, secret string) string {
-	// Collect and sort keys (exclude "signature")
-	keys := make([]string, 0, len(params))
-	for k := range params {
-		if k != "signature" {
-			keys = append(keys, k)
-		}
-	}
-	sort.Strings(keys)
-
-	// Build query string
-	values := url.Values{}
-	for _, k := range keys {
-		values.Set(k, params[k])
-	}
-	queryString := values.Encode()
-
-	// Compute HMAC-SHA256
-	mac := hmac.New(sha256.New, []byte(secret))
-	mac.Write([]byte(queryString))
-	return hex.EncodeToString(mac.Sum(nil))
-}
-
-func main() {
-	params := map[string]string{
-		"order_id":     "ORDER_20240101_001",
-		"amount":       "100.00",
-		"notify_url":   "https://example.com/callback",
-		"redirect_url": "https://example.com/success",
-	}
-	secret := "your_app_secret_key"
-	sig := generateSignature(params, secret)
-	fmt.Println("Signature:", sig)
+func EpusdtSign(params map[string]string, token string) string {
+    keys := make([]string, 0)
+    for k, v := range params {
+        if v != "" && k != "signature" {
+            keys = append(keys, k)
+        }
+    }
+    sort.Strings(keys)
+    parts := make([]string, 0, len(keys))
+    for _, k := range keys {
+        parts = append(parts, k+"="+params[k])
+    }
+    raw := strings.Join(parts, "&") + token
+    return fmt.Sprintf("%x", md5.Sum([]byte(raw)))
 }
 ```
 
@@ -347,17 +281,17 @@ When a payment is confirmed on-chain, Epusdt sends a POST request to the `notify
 | `token` | string | Cryptocurrency type |
 | `network` | string | Blockchain network |
 | `status` | int | Order status (`2` = paid) |
-| `signature` | string | HMAC-SHA256 signature for verification |
+| `signature` | string | MD5 signature for verification |
 
 ### Verifying the Callback Signature
 
 Always verify the `signature` in the callback to ensure it came from your Epusdt server:
 
-1. Extract all fields from the callback **except** `signature`
+1. Extract all callback fields with **non-empty values**, except `signature`
 2. Sort them alphabetically by key
-3. Build the query string
-4. Compute HMAC-SHA256 with your app secret
-5. Compare the result with the received `signature`
+3. Build the `key=value&key=value` string
+4. Append your `api_auth_token` directly to the end of the string
+5. Compute the lowercase **MD5** and compare it with the received `signature`
 
 Use the same [signature generation](#signature-generation) logic shown above.
 
@@ -377,15 +311,21 @@ If Epusdt does not receive `ok`, it will **retry the callback** until either:
 
 ```python [Python / Flask]
 from flask import Flask, request
+import hashlib
 
 app = Flask(__name__)
+
+def epusdt_sign(params: dict, token: str) -> str:
+    filtered = {k: v for k, v in params.items() if v != '' and v is not None and k != 'signature'}
+    sorted_str = '&'.join(f"{k}={v}" for k, v in sorted(filtered.items()))
+    return hashlib.md5((sorted_str + token).encode()).hexdigest()
 
 @app.route("/callback", methods=["POST"])
 def payment_callback():
     data = request.json
 
     # 1. Verify signature
-    expected_sig = generate_signature(data, "your_app_secret_key")
+    expected_sig = epusdt_sign(data, "your_api_auth_token")
     if data.get("signature") != expected_sig:
         return "signature mismatch", 400
 
@@ -401,14 +341,30 @@ def payment_callback():
 
 ```javascript [Node.js / Express]
 const express = require("express");
+const crypto = require("crypto");
 const app = express();
 app.use(express.json());
+
+function epusdtSign(params, token) {
+  const filtered = Object.entries(params)
+    .filter(([key, value]) => key !== "signature" && value !== "" && value !== null)
+    .sort(([a], [b]) => a.localeCompare(b));
+
+  const sortedStr = filtered
+    .map(([key, value]) => `${key}=${value}`)
+    .join("&");
+
+  return crypto
+    .createHash("md5")
+    .update(sortedStr + token)
+    .digest("hex");
+}
 
 app.post("/callback", (req, res) => {
   const data = req.body;
 
   // 1. Verify signature
-  const expectedSig = generateSignature(data, "your_app_secret_key");
+  const expectedSig = epusdtSign(data, "your_api_auth_token");
   if (data.signature !== expectedSig) {
     return res.status(400).send("signature mismatch");
   }
@@ -429,8 +385,21 @@ app.post("/callback", (req, res) => {
 <?php
 $data = json_decode(file_get_contents('php://input'), true);
 
+function epusdtSign(array $parameter, string $signKey): string {
+    ksort($parameter);
+    reset($parameter);
+    $sign = '';
+    foreach ($parameter as $key => $val) {
+        if ($val === '' || $val === null) continue;
+        if ($key === 'signature') continue;
+        if ($sign !== '') $sign .= '&';
+        $sign .= "$key=$val";
+    }
+    return md5($sign . $signKey);
+}
+
 // 1. Verify signature
-$expectedSig = generateSignature($data, 'your_app_secret_key');
+$expectedSig = epusdtSign($data, 'your_api_auth_token');
 if ($data['signature'] !== $expectedSig) {
     http_response_code(400);
     echo 'signature mismatch';
@@ -455,24 +424,17 @@ echo 'ok';
 Here is a complete example in Python showing the entire flow:
 
 ```python
-import hmac
 import hashlib
 import requests
-from urllib.parse import urlencode
 
 API_BASE = "https://pay.example.com"
 API_TOKEN = "your_api_token"
-APP_SECRET = "your_app_secret_key"
+API_AUTH_TOKEN = "your_api_auth_token"
 
-def generate_signature(params: dict, secret: str) -> str:
-    filtered = {k: v for k, v in params.items() if k != "signature"}
-    sorted_params = sorted(filtered.items())
-    query_string = urlencode(sorted_params)
-    return hmac.new(
-        secret.encode("utf-8"),
-        query_string.encode("utf-8"),
-        hashlib.sha256
-    ).hexdigest()
+def epusdt_sign(params: dict, token: str) -> str:
+    filtered = {k: v for k, v in params.items() if v != '' and v is not None and k != 'signature'}
+    sorted_str = '&'.join(f"{k}={v}" for k, v in sorted(filtered.items()))
+    return hashlib.md5((sorted_str + token).encode()).hexdigest()
 
 def create_order(order_id: str, amount: float, notify_url: str):
     params = {
@@ -480,7 +442,7 @@ def create_order(order_id: str, amount: float, notify_url: str):
         "amount": amount,
         "notify_url": notify_url,
     }
-    params["signature"] = generate_signature(params, APP_SECRET)
+    params["signature"] = epusdt_sign(params, API_AUTH_TOKEN)
 
     response = requests.post(
         f"{API_BASE}/payments/epusdt/v1/order/create-transaction",
