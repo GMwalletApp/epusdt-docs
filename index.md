@@ -1,7 +1,7 @@
 ---
 layout: home
 title: Epusdt — Private USDT TRC20 Payment Middleware
-description: Epusdt (bepusdt / tokenpay) is a self-hosted USDT TRC20 payment gateway. No fees, no third-party custody. Deploy with Docker and integrate via HTTP API.
+description: Epusdt (bepusdt / tokenpay / gmpay) is a self-hosted GMwallet USDT TRC20 payment gateway. No fees, no third-party custody. Deploy with Docker and integrate via HTTP API.
 
 hero:
   name: "Epusdt"

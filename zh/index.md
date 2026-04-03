@@ -1,7 +1,7 @@
 ---
 layout: home
 title: Epusdt — 私有化 USDT TRC20 支付中间件
-description: Epusdt（bepusdt / tokenpay）是一款自托管的 USDT TRC20 收款网关。无手续费，无第三方托管。支持 Docker 部署，通过 HTTP API 接入任何系统。
+description: Epusdt（bepusdt / tokenpay / gmpay）— GMwallet是一款自托管的 USDT TRC20 收款网关。无手续费，无第三方托管。支持 Docker 部署，通过 HTTP API 接入任何系统。
 
 hero:
   name: "Epusdt"

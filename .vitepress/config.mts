@@ -18,7 +18,7 @@ export default defineConfig({
     "Epusdt (Easy Payment USDT) is a private USDT TRC20 payment middleware — deploy on your own server with no extra fees.",
 
   head: [
-    ["meta", { name: "keywords", content: "epusdt, bepusdt, tokenpay, usdt payment, trc20 payment, usdt gateway, crypto payment gateway, self-hosted payment, usdt middleware, epusdt docker, epusdt api" }],
+    ["meta", { name: "keywords", content: "epusdt, bepusdt, tokenpay, gmwallet, gmpay, usdt payment, trc20 payment, usdt gateway, crypto payment gateway, self-hosted payment, usdt middleware, epusdt docker, epusdt api, gmpay usdt, gmwallet payment" }],
     ["meta", { name: "author", content: "GMwallet" }],
     ["meta", { property: "og:type", content: "website" }],
     ["meta", { property: "og:title", content: "Epusdt — Private USDT TRC20 Payment Middleware" }],
