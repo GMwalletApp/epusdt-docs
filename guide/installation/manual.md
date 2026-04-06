@@ -1,47 +1,59 @@
 # Manual Installation
 
-This guide covers installing Epusdt from source with full manual control over the build, configuration, and service management.
+This guide covers building and deploying Epusdt manually, without Docker or BaoTa.
 
 ## Prerequisites
 
-- **Go 1.16+** installed ([Install Go](https://go.dev/doc/install))
+- **Go 1.16+**
 - **Git**
-- **MySQL** or **PostgreSQL** (optional — SQLite is the default)
-- A Linux server (recommended for production)
-- A public domain pointed to your server
-- A [TronGrid API key](https://www.trongrid.io/)
+- A Linux server
+- **Nginx** or another reverse proxy for production HTTPS
+- A public domain pointed to the server
+- A valid **TronGrid API key**
 
-## Step 1: Clone the Repository
+Database choices supported by current source:
+
+- **SQLite**: default and simplest
+- **MySQL**: optional
+- **PostgreSQL**: optional
+
+::: warning
+Current source does **not** require Redis. It also auto-migrates its database tables on startup, so a normal installation does not begin with a manual SQL import step.
+:::
+
+## Step 1: Clone the repository
 
 ```bash
 git clone https://github.com/GMwalletApp/epusdt.git
 cd epusdt/src
 ```
 
-## Step 2: Build the Binary
-
-Compile Epusdt:
+## Step 2: Build the binary
 
 ```bash
 go build -o ../epusdt .
 ```
 
-This produces the `epusdt` binary in the project root directory.
+This creates the binary in the project root:
+
+```text
+epusdt/epusdt
+```
 
 ::: tip
-You can also download a pre-built binary from the [GitHub Releases page](https://github.com/GMwalletApp/epusdt/releases) instead of building from source.
+You can also use an official prebuilt release package if you do not want to compile from source.
 :::
 
-## Step 3: Configure the Environment File
+## Step 3: Create `.env`
 
-Copy the example environment file and edit it:
+From the project root:
 
 ```bash
 cd ..
 cp src/.env.example .env
 ```
 
-Open `.env` in your editor and configure the required values:
+Edit `.env` and set the values for your environment:
 
 ```dotenv
 app_name=epusdt
@@ -52,21 +64,20 @@ sql_debug=false
 http_listen=:8000
 
 static_path=/static
-runtime_root_path=/runtime
-
-log_save_path=/logs
+runtime_root_path=runtime
+log_save_path=logs
 log_max_size=32
 log_max_age=7
 max_backups=3
 
-# Database type: sqlite, mysql, postgres
+# supported values: postgres,mysql,sqlite
 db_type=sqlite
 
-# SQLite config
+# sqlite primary database config
 sqlite_database_filename=
 sqlite_table_prefix=
 
-# PostgreSQL config
+# postgres config
 postgres_host=127.0.0.1
 postgres_port=5432
 postgres_user=epusdt
@@ -77,7 +88,7 @@ postgres_max_idle_conns=10
 postgres_max_open_conns=100
 postgres_max_life_time=6
 
-# MySQL config
+# mysql config
 mysql_host=127.0.0.1
 mysql_port=3306
 mysql_user=epusdt
@@ -88,68 +99,80 @@ mysql_max_idle_conns=10
 mysql_max_open_conns=100
 mysql_max_life_time=6
 
-# Runtime SQLite store
+# sqlite runtime store config
 runtime_sqlite_filename=epusdt-runtime.db
 
-# Background scheduler
+# background scheduler config
 queue_concurrency=10
 queue_poll_interval_ms=1000
 callback_retry_base_seconds=5
 
-# Telegram bot
 tg_bot_token=
 tg_proxy=
 tg_manage=
 
-# API authentication token (keep secret!)
 api_auth_token=replace-with-a-long-random-secret
-
-# Order settings
 order_expiration_time=10
 order_notice_max_retry=0
 forced_usdt_rate=
-usdt_rate=
-cny_rate=
-callback_timeout=30
-api_rate_url=https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/
+api_rate_url=
 tron_grid_api_key=replace-with-your-trongrid-api-key
 ```
 
-### Required Fields
+Must-review settings:
 
-At minimum, you must set:
+- `app_uri`: public HTTPS URL used in generated payment links
+- `api_auth_token`: signing secret for merchant API requests
+- `tron_grid_api_key`: required for TRON/TRC20 payment detection
+- `db_type`: choose `sqlite`, `mysql`, or `postgres`
 
-- `app_uri` — your public domain
-- `api_auth_token` — a secret token for API authentication
-- `tron_grid_api_key` — your TronGrid API key
+## Step 4: Runtime and database expectations
 
-### Database Notes
+### Static files
 
-- **SQLite** (default) — no external database server needed; simplest option
-- **MySQL** — set `db_type=mysql` and fill in the `mysql_*` fields
-- **PostgreSQL** — set `db_type=postgres` and fill in the `postgres_*` fields
+Keep the binary, `.env`, and `static/` directory together. By default, the app serves static files from `./static` relative to the `.env` directory.
 
-For the full configuration reference, see the [Docker guide — Configuration Reference](/guide/installation/docker#configuration-reference).
+### SQLite
 
-## Step 4: Test the Service
+If `db_type=sqlite`:
 
-Make the binary executable and start it:
+- No external database server is needed
+- No manual schema import is normally needed
+- The app auto-creates tables on startup
+- The service user must be able to write its data and runtime files
+
+### MySQL / PostgreSQL
+
+If `db_type=mysql` or `db_type=postgres`:
+
+- Fill in the matching DB connection fields
+- Make sure the SQL server is reachable
+- The app still uses a separate SQLite runtime lock database via `runtime_sqlite_filename`
+
+### Paths
+
+`runtime_root_path`, `log_save_path`, and explicit SQLite filenames can be relative or absolute.
+
+- Relative paths are resolved from the `.env` location
+- Absolute paths must already be writable by the service user
+
+## Step 5: Test the app in foreground
+
+From the project root:
 
 ```bash
 chmod +x epusdt
 ./epusdt http start
 ```
 
-You should see output confirming the HTTP server has started. Visit:
+Then test:
 
-- `http://your-server:8000` — public checkout page
-- `http://your-server:8000/admin` — admin panel
+- `http://127.0.0.1:8000/`
+- `http://127.0.0.1:8000/pay/checkout-counter/<trade_id>` for checkout pages when you have a real order
 
-Press `Ctrl+C` to stop the foreground process when you are ready to set up a proper service manager.
+Stop the foreground process with `Ctrl+C` after confirming it starts cleanly.
 
-## Step 5: Create a systemd Service
-
-For production, run Epusdt as a managed background service so it starts automatically on boot and restarts on failure.
+## Step 6: Create a systemd service
 
 Create `/etc/systemd/system/epusdt.service`:
 
@@ -172,7 +195,7 @@ WantedBy=multi-user.target
 ```
 
 ::: warning
-Adjust `WorkingDirectory` and `ExecStart` to match the directory where you placed the binary and `.env` file. The `.env` file must be in the working directory.
+`WorkingDirectory` must contain the `.env` file, the `epusdt` binary, and the `static/` directory unless you deliberately use custom paths.
 :::
 
 Enable and start the service:
@@ -183,23 +206,18 @@ sudo systemctl enable epusdt
 sudo systemctl start epusdt
 ```
 
-Check service status:
+Useful checks:
 
 ```bash
 sudo systemctl status epusdt
-```
-
-Follow the logs:
-
-```bash
 sudo journalctl -u epusdt -f
 ```
 
-## Step 6: Configure Nginx Reverse Proxy
+## Step 7: Configure Nginx reverse proxy
 
-For production, expose Epusdt through your domain with HTTPS using Nginx.
+For production, expose Epusdt through HTTPS and proxy traffic to the local app port.
 
-Create a server block (e.g. `/etc/nginx/sites-available/epusdt`):
+Example server block:
 
 ```nginx
 server {
@@ -225,72 +243,67 @@ server {
 }
 ```
 
-Enable the site and reload Nginx:
+Reload Nginx:
 
 ```bash
-sudo ln -s /etc/nginx/sites-available/epusdt /etc/nginx/sites-enabled/
 sudo nginx -t
 sudo systemctl reload nginx
 ```
 
-Make sure `app_uri` in `.env` uses the HTTPS URL:
+Important notes:
 
-```dotenv
-app_uri=https://pay.example.com
-```
+- Keep `app_uri` aligned with the final public URL
+- Root-mounted deployment is the safest setup
+- If you place Epusdt under a subpath, your reverse proxy must rewrite paths correctly because the app itself registers routes at `/`, `/pay/...`, and `/payments/...`
 
-Then restart the service:
+## Step 8: Update the service
 
-```bash
-sudo systemctl restart epusdt
-```
-
-## Updating Epusdt
-
-To update a manually installed instance:
+For source-based upgrades:
 
 ```bash
 cd /opt/epusdt
 sudo systemctl stop epusdt
-
-# Pull latest source and rebuild
 git pull
 cd src && go build -o ../epusdt . && cd ..
-
 sudo systemctl start epusdt
 ```
 
-Or download a new pre-built binary from [GitHub Releases](https://github.com/GMwalletApp/epusdt/releases), replace the old binary, and restart the service.
+If you use release binaries instead, replace the old binary and restart the service.
 
 ## Troubleshooting
 
-### The binary will not start
+### The service fails to start
 
-Make sure it is executable:
+Check:
 
-```bash
-chmod +x epusdt
-```
+- `.env` exists in the working directory
+- `ExecStart` includes `http start`
+- `static/` exists where the app expects it
+- Runtime and log paths are writable
 
-Check that `.env` is in the same directory as the binary.
+### Nginx returns 502 Bad Gateway
 
-### Nginx shows 502 Bad Gateway
+Check:
 
-Confirm that Epusdt is running on the expected port:
+- Epusdt is listening on the configured port
+- Nginx proxies to the same port as `http_listen`
+- The service started successfully according to `journalctl`
 
-```bash
-sudo systemctl status epusdt
-sudo journalctl -u epusdt -f
-```
+### Payments are not detected
 
-### Telegram bot does not respond
+Check:
 
-Verify:
+- `tron_grid_api_key` is configured
+- Wallet addresses were added correctly
+- The host can reach external TRON/HTTP APIs
+- You are testing with the expected TRON/TRC20 flow
 
-- `tg_bot_token` is correct
-- `tg_manage` is your numeric Telegram user ID
-- `tg_proxy` is set if the server cannot reach `api.telegram.org` directly
+### Callback retries do not behave as expected
 
-### TRC20 payments are not detected
+Current retry behavior is config-driven.
 
-Check that `tron_grid_api_key` is present and valid. Without a working API key, Epusdt cannot monitor TRC20 transactions.
+Review:
+
+- `order_notice_max_retry`
+- `callback_retry_base_seconds`
+- whether your callback endpoint returns HTTP `200` with body `ok`

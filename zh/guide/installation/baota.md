@@ -1,53 +1,65 @@
 # 宝塔面板部署
 
-本文介绍如何在安装了宝塔面板的 Linux 服务器上部署 Epusdt。如果你习惯通过图形化面板管理网站、数据库和反向代理，宝塔是一个比较省事的方案。
+本文基于当前源码，说明如何在 **宝塔（BaoTa / 宝塔面板）** 环境下部署 Epusdt。
 
 > 如果你更倾向于 Docker 或纯命令行方式，请参考 [Docker 部署](/zh/guide/installation/docker) 或 [手动部署](/zh/guide/installation/manual)。
 
 ## 前置条件
 
-开始前请确认：
+开始前请准备：
 
-- 你已经有一台 Linux 服务器
-- 服务器已安装宝塔面板，且能正常登录后台
-- 已安装 **Nginx**
-- 已准备好域名，并已解析到当前服务器
-- 已获取 TronGrid API Key（[前往注册](https://www.trongrid.io/)）
+- 一台已安装 **宝塔面板** 的 Linux 服务器
+- 宝塔中已安装 **Nginx**
+- 宝塔中已安装 **Supervisor**
+- 已解析到服务器的公网域名
+- 有效的 **TronGrid API Key**
+- 已编译好的 `epusdt` 二进制文件，或官方发布包
 
-## 部署思路
+当前源码支持的数据库方案：
 
-在宝塔面板环境中，Epusdt 通常以独立 Go 服务运行，由 Nginx 做反向代理对外提供访问。
+- **SQLite**：最简单，不需要额外数据库服务
+- **MySQL**：可选
+- **PostgreSQL**：可选
 
-典型架构：
+::: warning
+当前源码 **不需要 Redis**，正常部署场景下也**不需要手工导入 SQL 表结构**。应用首次启动时会自动建表/迁移。
+:::
 
-- Nginx 处理公网 HTTP/HTTPS 流量
-- Epusdt 监听本地 `127.0.0.1:8000`
-- Supervisor 守护进程保持服务运行
-- 默认使用 SQLite，无需额外数据库；如需 MySQL 可通过宝塔安装
+## 部署结构
 
-## 第一步：在宝塔中添加站点
+宝塔环境下的典型结构：
 
-1. 打开左侧菜单 **网站**
-2. 点击 **添加站点**
-3. 绑定你的支付域名，例如 `pay.example.com`
-4. 站点类型选择 **纯静态** 即可（最终由反向代理转发到 Epusdt）
+- 宝塔 **Nginx** 负责公网 HTTP/HTTPS
+- Epusdt 监听 `127.0.0.1:8000`
+- 宝塔 **Supervisor** 守护进程
+- SQLite 或外部 SQL 数据库存储业务数据
+- 运行时目录和日志目录默认相对 `.env` 所在目录创建
 
-## 第二步：准备程序目录
-
-将 Epusdt 二进制文件或发布包上传到站点目录，例如：
-
-```text
-/www/wwwroot/pay.example.com/
-```
-
-目录结构示例：
+目录示例：
 
 ```text
 /www/wwwroot/pay.example.com/
 ├── epusdt
 ├── .env
-├── data/
-└── logs/
+├── static/
+└── runtime/
+```
+
+## 第一步：在宝塔中添加站点
+
+进入 **网站**：
+
+1. 点击 **添加站点**
+2. 绑定支付域名，例如 `pay.example.com`
+3. 站点类型用静态/默认站点即可，最终由反向代理转发给 Epusdt
+4. 如果你准备用 MySQL，也可以顺手创建数据库
+
+## 第二步：上传程序
+
+将 Epusdt 二进制文件或发布包上传到站点目录，例如：
+
+```text
+/www/wwwroot/pay.example.com/
 ```
 
 赋予执行权限：
@@ -56,95 +68,109 @@
 chmod +x /www/wwwroot/pay.example.com/epusdt
 ```
 
-## 第三步：配置 `.env`
+::: tip
+建议把 `.env`、`epusdt` 和 `static/` 目录放在同一级。默认情况下，服务会从工作目录读取 `.env`，并从 `./static` 提供静态资源。
+:::
 
-在程序目录中创建或编辑 `.env` 文件：
+## 第三步：准备 `.env`
+
+在二进制同目录创建或编辑 `.env`：
 
 ```dotenv
 app_name=epusdt
 app_uri=https://pay.example.com
 http_listen=:8000
 
-# 数据库类型：sqlite（默认）、mysql、postgres
+static_path=/static
+runtime_root_path=runtime
+log_save_path=logs
+
+# supported values: sqlite, mysql, postgres
 db_type=sqlite
 
-# SQLite（默认，无需额外数据库服务）
+# SQLite 主数据库文件（留空时默认使用 runtime/store.sqlite）
 sqlite_database_filename=
+runtime_sqlite_filename=epusdt-runtime.db
 
-# MySQL（如需使用请取消注释并填写）
+# MySQL 示例
 # db_type=mysql
 # mysql_host=127.0.0.1
 # mysql_port=3306
 # mysql_user=epusdt
-# mysql_passwd=your_password
+# mysql_passwd=change-this-db-password
 # mysql_database=epusdt
 
-tron_grid_api_key=your_trongrid_api_key
+# PostgreSQL 示例
+# db_type=postgres
+# postgres_host=127.0.0.1
+# postgres_port=5432
+# postgres_user=epusdt
+# postgres_passwd=change-this-db-password
+# postgres_database=epusdt
+
+api_auth_token=replace-with-a-long-random-secret
+tron_grid_api_key=replace-with-your-trongrid-api-key
 order_expiration_time=10
-api_auth_token=change-this-to-a-long-random-token
 
 # Telegram 机器人（可选）
 tg_bot_token=
+tg_proxy=
 tg_manage=
 ```
 
-### 数据库说明
+生产环境至少重点确认：
 
-- **SQLite**（默认）：开箱即用，无需安装任何数据库服务，适合单机轻量部署
-- **MySQL**：如需使用，可在宝塔 **软件商店** 中搜索安装 MySQL，然后在 **数据库** 面板中创建数据库和用户，将 `db_type` 改为 `mysql` 并填写对应连接信息
-- **PostgreSQL**：同理，将 `db_type` 改为 `postgres` 并填写 `postgres_*` 字段
+- `app_uri`：最终公网 HTTPS 域名
+- `api_auth_token`：商户 API 签名密钥
+- `tron_grid_api_key`：TRON / TRC20 监听所需
+- `db_type`：如果不是 SQLite，就要配套填写数据库连接信息
 
-### 配置要点
+## 第四步：数据库说明
 
-- `app_uri`：填写最终对外访问的完整域名，例如 `https://pay.example.com`
-- `api_auth_token`：API 鉴权密钥，务必修改为随机字符串
-- `tron_grid_api_key`：建议填写真实有效的 TronGrid API Key
+### SQLite
 
-完整配置字段说明请参考 [Docker 部署 — 配置说明](/zh/guide/installation/docker#配置说明)。
+单机部署优先推荐 SQLite。
 
-## 第四步：配置反向代理
+- 一般不需要手动导入表结构
+- 应用启动时会自动迁移表
+- 主业务数据和运行时锁都会写入 SQLite 文件
+- 需要保证服务用户对程序目录有写权限
 
-Epusdt 自带 HTTP 服务，宝塔需要将外部流量反向代理到它。
+### MySQL / PostgreSQL
 
-在宝塔站点设置中：
+如果你更想用外部数据库：
 
-1. 进入站点 **设置** 页面
-2. 打开 **反向代理**
-3. 新建反向代理，目标地址填写：
+- 将 `db_type` 改为 `mysql` 或 `postgres`
+- 填写对应连接字段
+- 确保宝塔服务器能连通数据库服务
+- 即使主库使用 MySQL / PostgreSQL，运行时锁仍会通过 `runtime_sqlite_filename` 使用 SQLite
+
+## 第五步：配置反向代理
+
+Epusdt 自带 HTTP 服务，宝塔需要把流量反代到它。
+
+在站点设置中新增反向代理，目标地址填：
 
 ```text
 http://127.0.0.1:8000
 ```
 
-注意事项：
+建议同时注意：
 
-- 确保站点已启用 HTTPS
-- `app_uri` 必须与最终公网访问域名一致
-- 如果前面还有 Cloudflare 等 CDN，源站仍需正确配置 HTTPS
+- 对外站点启用 HTTPS
+- `app_uri` 必须与最终访问地址完全一致
+- 除非你明确做了路径改写，否则不要把 Epusdt 挂在子目录下
 
-## 第五步：申请 SSL 证书
+如果你会直接编辑宝塔生成的 Nginx 配置，建议保留这些标准头：
 
-为了保障支付页面和后台管理的安全，建议启用 HTTPS。
-
-在宝塔站点设置中：
-
-1. 打开 **SSL**
-2. 选择 **Let's Encrypt**
-3. 勾选你的域名
-4. 点击申请证书
-5. 申请成功后，开启 **强制 HTTPS**
-
-启用 SSL 后，请确认 `.env` 中的 `app_uri` 使用 `https://` 开头。
+- `Host`
+- `X-Real-IP`
+- `X-Forwarded-For`
+- `X-Forwarded-Proto`
 
 ## 第六步：添加 Supervisor 守护进程
 
-在宝塔 Supervisor 中创建新的守护进程任务。
-
-启动命令示例：
-
-```bash
-/www/wwwroot/pay.example.com/epusdt
-```
+在宝塔 **Supervisor** 中新增任务。
 
 工作目录：
 
@@ -152,50 +178,76 @@ http://127.0.0.1:8000
 /www/wwwroot/pay.example.com/
 ```
 
-如果你的构建版本需要子命令启动，请根据实际情况调整启动命令。
+启动命令：
+
+```bash
+/www/wwwroot/pay.example.com/epusdt http start
+```
+
+::: warning
+当前源码的标准启动方式是 `http start`。除非你的发布包明确说明可直接执行，否则不要只写 `./epusdt`。
+:::
 
 ## 第七步：启动并验证
 
-保存 Supervisor 任务后：
+保存任务后：
 
 1. 启动进程
-2. 访问 `https://pay.example.com`
-3. 如果页面无法加载，检查应用日志
-4. 打开管理后台 `https://pay.example.com/admin`，添加钱包地址
+2. 打开 `https://pay.example.com/`
+3. 若启动失败，查看 Supervisor 日志或应用日志
+4. 后续真实收银台页面会出现在 `/pay/...`
 
-## 宝塔环境建议
+可用性检查建议：
 
-- 启用 SSL 证书自动续期
-- 限制对 `.env` 等敏感文件的直接访问
-- 定期备份数据库
-- 关注 `logs/` 目录中的回调和链上轮询错误日志
+- 根路径 `/` 应能正常响应
+- 收银台页面走 `/pay/...`
+- API 路由走 `/payments/...`
+
+## 宝塔环境加固建议
+
+- 开启 SSL 证书自动续期
+- 禁止 Web 直接访问 `.env`
+- 程序目录只给运行用户必要写权限
+- 定期备份数据库文件或外部数据库
+- 关注回调失败和链上轮询相关日志
 
 ## 常见问题
 
 ### 502 Bad Gateway
 
-通常说明 Nginx 无法连接到 Epusdt 后端。请检查：
+通常表示 Nginx 连不到 Epusdt。请检查：
 
-- Epusdt 是否已在 Supervisor 中正常运行
-- `http_listen` 配置是否正确
-- 反向代理目标地址是否与实际监听端口一致
+- Supervisor 进程是否在运行
+- 启动命令是否为 `epusdt http start`
+- `http_listen` 是否与反代目标一致
+- 进程是否能从工作目录读取 `.env`
 
-### 订单创建成功但始终未完成
+### 改了路径后启动失败
+
+重点检查这些路径是否存在且可写：
+
+- `runtime_root_path`
+- `log_save_path`
+- `sqlite_database_filename`（如果你手动指定了）
+
+相对路径会以 `.env` 所在目录为基准解析。
+
+### 订单创建成功但支付始终不确认
 
 请检查：
 
-- 钱包地址是否为 **TRC20 USDT** 地址
-- TronGrid API Key 是否有效
-- 防火墙是否允许出站流量
+- 钱包地址是否已正确添加
+- 你的业务接入是否按 TRON / TRC20 USDT 流程使用
+- `tron_grid_api_key` 是否有效
+- 服务器是否能访问外部 TRON / HTTP API
 
-### 支付回调异常
+### 回调一直失败
 
 请检查：
 
-- 回调地址是否为公网可达
-- `app_uri` 是否为正确的公网域名
-- HTTPS 是否已正确配置
-- 业务系统是否能正确接收回调请求
+- `notify_url` 是否公网可达
+- 商户回调接口是否返回 HTTP `200` 且响应体严格为 `ok`
+- 反向代理或 TLS 配置是否影响应用向外回调
 
 ## 下一步
 
