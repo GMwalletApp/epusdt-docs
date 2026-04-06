@@ -1,20 +1,16 @@
 # Cloudflare Pages Deployment
 
-This page explains how to deploy **this documentation site** — the `epusdt-docs` VitePress project — to **Cloudflare Pages**.
+This page explains how to deploy the **documentation site** — the `epusdt-docs` VitePress project — to **Cloudflare Pages**.
 
 ::: warning
 This guide is for the **documentation website only**.
 
-It does **not** deploy the Epusdt payment service itself. To deploy Epusdt, use one of these guides instead:
-
-- [Docker](/guide/installation/docker)
-- [BaoTa Panel](/guide/installation/baota)
-- [Manual Installation](/guide/installation/manual)
+It does **not** deploy the Epusdt payment service itself. Epusdt is a server application and should be deployed with Docker, BaoTa, or a manual server setup.
 :::
 
-## What You Will Deploy
+## What you are deploying
 
-The `epusdt-docs` repository is a static VitePress site. Cloudflare Pages can build it directly from GitHub and host the generated static files globally.
+The `epusdt-docs` repository is a static VitePress site.
 
 Repository:
 
@@ -26,15 +22,15 @@ Before starting, make sure you have:
 
 - a GitHub account
 - a Cloudflare account
-- permission to fork repositories on GitHub
+- permission to create or fork a repository
 
-## Step 1: Fork the Repository
+## Step 1: Fork or connect the repository
 
-Fork the docs repository to your own GitHub account:
+Use the docs repository:
 
 - [https://github.com/GMwalletApp/epusdt-docs](https://github.com/GMwalletApp/epusdt-docs)
 
-After forking, you should have a repository like:
+After forking, you may have a repository like:
 
 ```text
 https://github.com/your-username/epusdt-docs
@@ -42,35 +38,50 @@ https://github.com/your-username/epusdt-docs
 
 ## Step 2: Open Cloudflare Pages
 
-1. Sign in to your Cloudflare dashboard
+1. Sign in to Cloudflare
 2. Go to **Workers & Pages**
 3. Click **Create application**
 4. Choose **Pages**
 5. Click **Connect to Git**
 
-## Step 3: Connect Your GitHub Repository
+## Step 3: Connect your repository
 
-1. Authorize Cloudflare to access your GitHub account if prompted
-2. Select your forked `epusdt-docs` repository
-3. Click **Begin setup**
+1. Authorize GitHub access if Cloudflare asks
+2. Select your `epusdt-docs` repository
+3. Continue to build settings
 
-## Step 4: Configure Build Settings
+## Step 4: Configure build settings
 
-Use these build settings:
+The repository uses this script:
+
+```json
+"docs:build": "vitepress build"
+```
+
+Use these Cloudflare Pages settings:
 
 | Setting | Value |
 |--------|-------|
-| Framework preset | `None` or `VitePress` if available |
+| Framework preset | `VitePress` if available, otherwise `None` |
 | Build command | `bun run docs:build` |
 | Build output directory | `.vitepress/dist` |
 
-### Important Notes
+## Base path caveat
 
-- `wrangler.toml` is already included in the repository
-- `bun.lock` is already included in the repository
-- Cloudflare can auto-detect the Bun-based project setup
+The docs site uses the VitePress `base` setting from `VITEPRESS_BASE`, and falls back to `/` when that variable is not set.
 
-The repository is already prepared for Pages deployment, so you usually do not need to add any extra build files.
+That means:
+
+- normal root deployment on a Pages domain usually works with the default config
+- if you publish the site under a subpath, you must set a matching `VITEPRESS_BASE`
+
+Example:
+
+```text
+VITEPRESS_BASE=/docs/
+```
+
+Without a matching base path, links or static assets may break even though the build succeeds.
 
 ## Step 5: Deploy
 
@@ -81,57 +92,45 @@ Cloudflare Pages will:
 1. clone your repository
 2. install dependencies
 3. run the build command
-4. publish the generated VitePress site
+4. publish the generated static files
 
-After a successful deployment, Cloudflare will give you a default Pages URL similar to:
+After a successful deployment, you will get a Pages URL similar to:
 
 ```text
-https://epusdt-docs.pages.dev
+https://your-project.pages.dev
 ```
 
-## Step 6: Add a Custom Domain (Optional)
+## Step 6: Add a custom domain (optional)
 
 If you want to use your own domain for the docs site:
 
-1. Open your Pages project in Cloudflare
-2. Go to **Custom domains**
-3. Click **Set up a custom domain**
-4. Enter your domain, for example `docs.example.com`
-5. Follow the DNS instructions provided by Cloudflare
+1. open your Pages project
+2. go to **Custom domains**
+3. click **Set up a custom domain**
+4. enter a domain such as `docs.example.com`
+5. follow Cloudflare's DNS instructions
 
-Once DNS is active, the docs site will be available on your custom domain.
+## Updating the site later
 
-## Step 7: Update the Site Later
-
-Once Pages is connected to GitHub, updates are automatic.
-
-Whenever you push changes to the tracked branch:
-
-1. Cloudflare starts a new build
-2. the docs are rebuilt
-3. the latest version is published automatically
-
-This makes it easy to keep the documentation synchronized with repository changes.
+Once Pages is connected to GitHub, pushes to the tracked branch trigger a rebuild automatically.
 
 ## Troubleshooting
 
-### Build failed on Cloudflare Pages
+### Build fails on Cloudflare Pages
 
-Check these settings first:
+Check these values first:
 
 - Build command: `bun run docs:build`
 - Output directory: `.vitepress/dist`
 
-Also make sure your fork includes the repository files:
+Also make sure the repository still contains the normal project files such as `package.json` and the VitePress source content.
 
-- `wrangler.toml`
-- `bun.lock`
-- `package.json`
+### The site deploys but styles or assets are missing
 
-### The site deploys but pages are missing styles or assets
+This usually means the deployed URL path and the VitePress base path do not match.
 
-Confirm that the VitePress base path matches your deployment setup. If you are deploying to a normal Pages project root, the default configuration is usually correct.
+If you are deploying under a subpath, set `VITEPRESS_BASE` to the same path, including the trailing slash.
 
-### I want to deploy Epusdt itself on Cloudflare Pages
+### Can I deploy Epusdt itself on Cloudflare Pages?
 
-You cannot run the Epusdt payment service on Pages because Pages is for static sites. Use a server or container platform for Epusdt itself.
+No. Cloudflare Pages is for static sites, while Epusdt itself is a backend application with runtime configuration, storage, and payment-processing logic.

@@ -1,28 +1,39 @@
 # Docker Deployment
 
-This guide shows how to run Epusdt using Docker Compose — the quickest way to get started.
+This guide shows how to run Epusdt with Docker Compose.
+
+## What the official Docker setup actually does
+
+The source repository includes an official `docker-compose.yaml` example that:
+
+- runs `gmwallet/epusdt:alpine`
+- mounts a local `env` file to `/app/.env`
+- publishes container port `8000`
+
+The application reads configuration from `.env` by default. In Docker, the documented pattern is to keep a host file named `env` and mount it as `/app/.env` inside the container.
 
 ## Prerequisites
 
-- Docker and Docker Compose installed ([Install Docker](https://docs.docker.com/engine/install/))
-- A Telegram bot token (for wallet management and notifications)
-- A domain name pointed to your server (for the payment checkout page)
-- A TronGrid API key ([Register at TronGrid](https://www.trongrid.io/))
+- Docker and Docker Compose installed
+- a public domain or server address for Epusdt
+- a TronGrid API key
+- an `api_auth_token`
+- optional Telegram bot settings
 
-## Step 1: Create the Working Directory
+## Step 1: Create the working directory
 
 ```shell
 mkdir epusdt && cd epusdt
 ```
 
-## Step 2: Create the `.env` Configuration File
+## Step 2: Create the configuration file
 
-Only three values **must** be changed: `app_uri`, `tron_grid_api_key`, and `api_auth_token`.
+Save the following as `env` in the working directory:
 
 ```shell
 cat <<EOF > env
 app_name=epusdt
-app_uri=https://your-domain.com
+app_uri=https://pay.example.com
 log_level=info
 http_access_log=false
 sql_debug=false
@@ -36,25 +47,25 @@ log_max_size=32
 log_max_age=7
 max_backups=3
 
-# Database type: postgres, mysql, sqlite
+# supported values: postgres,mysql,sqlite
 db_type=sqlite
 
-# SQLite primary database config
+# sqlite primary database config
 sqlite_database_filename=
 sqlite_table_prefix=
 
-# PostgreSQL config
+# postgres config
 postgres_host=127.0.0.1
-postgres_port=5432
-postgres_user=postgres_user
-postgres_passwd=postgres_password
+postgres_port=3306
+postgres_user=mysql_user
+postgres_passwd=mysql_password
 postgres_database=database_name
 postgres_table_prefix=
 postgres_max_idle_conns=10
 postgres_max_open_conns=100
 postgres_max_life_time=6
 
-# MySQL config
+# mysql config
 mysql_host=127.0.0.1
 mysql_port=3306
 mysql_user=mysql_user
@@ -65,30 +76,39 @@ mysql_max_idle_conns=10
 mysql_max_open_conns=100
 mysql_max_life_time=6
 
-# SQLite runtime store config
+# sqlite runtime store config
 runtime_sqlite_filename=epusdt-runtime.db
 
-# Background scheduler config
+# background scheduler config
 queue_concurrency=10
 queue_poll_interval_ms=1000
 callback_retry_base_seconds=5
 
-# Telegram bot
 tg_bot_token=
 tg_proxy=
 tg_manage=
 
-# API authentication token (keep secret!)
 api_auth_token=
 
-# Order settings
 order_expiration_time=10
 order_notice_max_retry=0
 forced_usdt_rate=
-api_rate_url=https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/
+api_rate_url=
 tron_grid_api_key=
 EOF
 ```
+
+### Minimum settings to review
+
+At minimum, check and set these values:
+
+| Key | Why it matters |
+|-----|----------------|
+| `app_uri` | Public URL used when Epusdt generates checkout links |
+| `api_auth_token` | Required for API request signing/authentication |
+| `tron_grid_api_key` | Recommended for stable TRON/TRC20 queries |
+| `db_type` | Defaults to `sqlite`; change only if you really use MySQL/PostgreSQL |
+| `tg_bot_token` / `tg_manage` | Optional, but useful for bot-based management |
 
 ## Step 3: Create `docker-compose.yaml`
 
@@ -98,6 +118,9 @@ services:
   epusdt:
     image: gmwallet/epusdt:alpine
     restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
     volumes:
       - ./env:/app/.env
     ports:
@@ -105,25 +128,34 @@ services:
 EOF
 ```
 
-## Step 4: Start the Service
+## Step 4: Start the service
 
 ```shell
 docker compose up -d
 ```
 
-Verify the container is running:
+Check status:
 
 ```shell
 docker compose ps
 ```
 
-You should see the `epusdt` service with status `running` and port `8000` mapped.
+Check logs:
 
-## Step 5: Configure Reverse Proxy (Recommended)
+```shell
+docker compose logs -f epusdt
+```
 
-For production use, set up Nginx or Caddy as a reverse proxy with HTTPS:
+## Port exposure and reverse proxy
 
-**Nginx example:**
+By default, the application listens on `:8000` inside the container, and the compose example publishes it as `8000:8000`.
+
+That means:
+
+- the app is reachable directly on the host's port `8000`
+- you can also place Nginx, Caddy, or another reverse proxy in front of it
+
+### Nginx example
 
 ```nginx
 server {
@@ -143,43 +175,50 @@ server {
 }
 ```
 
-**Caddy example (auto-HTTPS):**
+### Caddy example
 
-```
+```text
 pay.example.com {
     reverse_proxy 127.0.0.1:8000
 }
 ```
 
-## Step 6: Verify Installation
+## API path vs checkout path
 
-1. Open your Telegram bot — if it responds, Epusdt is running correctly.
-2. Visit `https://your-domain.com` in a browser to see the checkout page.
-3. Check logs if needed:
+Keep these paths distinct:
 
-```shell
-docker compose logs -f epusdt
+- create order API: `/payments/epusdt/v1/order/create-transaction`
+- hosted checkout page: `/pay/checkout-counter/:trade_id`
+- checkout polling endpoint: `/pay/check-status/:trade_id`
+
+`app_uri` is used to generate checkout URLs such as:
+
+```text
+https://pay.example.com/pay/checkout-counter/{trade_id}
 ```
 
-## Configuration Reference
+It is **not** an internal router prefix.
 
-| Key | Description | Required |
-|-----|-------------|----------|
-| `app_uri` | Your public domain (e.g. `https://pay.example.com`) | ✅ Yes |
-| `api_auth_token` | API authentication token (keep secret) | ✅ Yes |
-| `tg_bot_token` | Telegram bot token | Recommended |
-| `tg_manage` | Telegram admin user ID | Recommended |
-| `tron_grid_api_key` | TronGrid API key — improves stability | Recommended |
-| `api_rate_url` | Exchange rate API URL | Optional |
-| `forced_usdt_rate` | Force a fixed exchange rate (e.g. `6.4`) | Optional |
-| `order_expiration_time` | Order expiry in minutes (default: `10`) | Optional |
-| `db_type` | Database type: `sqlite`, `mysql`, `postgres` | Optional |
-| `queue_concurrency` | Number of concurrent queue workers (default: `10`) | Optional |
-| `log_level` | Logging level: `debug`, `info`, `warn`, `error` | Optional |
+## Subpath caveat
+
+The current source code registers routes at root-relative paths like `/payments/...` and `/pay/...`.
+
+If you want to expose Epusdt under a subpath such as `https://example.com/epusdt/`, Docker alone does not change that. You would need reverse-proxy rewrite rules and careful testing for both API and checkout routes.
+
+For the least surprising setup, deploy Epusdt on its own domain or subdomain, for example:
+
+- `https://pay.example.com`
+
+## Verify installation
+
+A practical verification flow is:
+
+1. confirm the container is running
+2. open `http://SERVER_IP:8000/` or your proxied domain and confirm the service responds
+3. create a test order against `/payments/epusdt/v1/order/create-transaction`
+4. confirm the returned `payment_url` points to `/pay/checkout-counter/{trade_id}` on your public domain
 
 ## Upgrading
-
-To upgrade Epusdt to the latest version:
 
 ```shell
 docker compose pull
@@ -188,23 +227,34 @@ docker compose up -d
 
 ## Troubleshooting
 
-### Container fails to start
+### The container starts but uses the wrong config
 
-Check logs for configuration errors:
+Make sure the file is mounted exactly as:
 
-```shell
-docker compose logs epusdt
+```yaml
+volumes:
+  - ./env:/app/.env
 ```
 
-### Port conflict
+The app looks for `.env` inside the container unless you explicitly override the config path.
 
-If port 8000 is already in use, change the port mapping in `docker-compose.yaml`:
+### Port 8000 is already in use
+
+Change the host-side mapping, for example:
 
 ```yaml
 ports:
   - "9000:8000"
 ```
 
-### Database connection issues
+The container still listens on `8000`; only the host port changes.
 
-If using MySQL or PostgreSQL, ensure the database server is accessible from within the Docker container. Use `host.docker.internal` or the host's IP instead of `127.0.0.1`.
+### MySQL or PostgreSQL cannot be reached
+
+Inside Docker, `127.0.0.1` points to the container itself, not your host database.
+
+If your database runs in another container, use the service name. If it runs on the host, use a host-accessible address instead of assuming localhost will work.
+
+### Static assets or runtime files behave unexpectedly after changing paths
+
+`static_path` controls the URL path for static files, while `runtime_root_path` controls filesystem storage. They are not deployment base-path settings. Avoid changing them just to try to mount the app under a URL subpath.

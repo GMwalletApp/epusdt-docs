@@ -1,91 +1,108 @@
 # Installation Overview
 
-Epusdt supports multiple deployment methods so you can choose the one that best fits your environment.
+Epusdt supports multiple deployment methods. For most users, **Docker** is the simplest and safest starting point.
 
-## Recommended Deployment Methods
+## Recommended Methods
 
 ### 1. Docker Deployment
 
 **Best for most users.**
 
-Docker is the fastest and cleanest way to deploy Epusdt. You can launch the service with a single image and keep configuration in environment variables or a mounted `.env` file.
+Use Docker when you want:
 
-Recommended when you want:
+- quick setup
+- isolated runtime
+- straightforward upgrades
+- a predictable production layout
 
-- Fast setup
-- Easy upgrades
-- Clean isolation from the host system
-- Consistent deployment across servers
-
-→ [Read the Docker deployment guide](/guide/installation/docker)
+→ [Docker deployment guide](/guide/installation/docker)
 
 ### 2. BaoTa Panel Deployment
 
-**Best for panel-based server administration.**
+**Best for panel-based server management.**
 
-If you manage servers with BaoTa (宝塔面板), you can deploy Epusdt using your existing web, database, and supervisor stack.
+Use BaoTa when you want:
 
-Recommended when you want:
+- GUI-based website and database management
+- easy SSL and reverse proxy setup
+- a familiar panel workflow
 
-- GUI-based server management
-- Easy reverse proxy setup
-- Built-in website/database tools
-
-→ [Read the BaoTa deployment guide](/guide/installation/baota)
+→ [BaoTa deployment guide](/guide/installation/baota)
 
 ### 3. Manual Deployment
 
 **Best for operators who want full control.**
 
-Manual deployment is ideal if you prefer building from source, managing your own system services, or integrating Epusdt into a custom environment.
+Use manual deployment when you want:
 
-Recommended when you want:
+- source builds
+- custom process supervision
+- deeper integration with your own Linux stack
 
-- Full control over the runtime environment
-- Source builds and custom packaging
-- Native service management with systemd or supervisor
-
-→ [Read the manual deployment guide](/guide/installation/manual)
+→ [Manual deployment guide](/guide/installation/manual)
 
 ### 4. Cloudflare Pages Deployment
 
-**For documentation or frontend-only static sites.**
+**For the documentation site only.**
 
-Cloudflare Pages can host the VitePress documentation site for Epusdt. This is useful if you want a public docs portal backed by GitHub and a custom domain.
+Cloudflare Pages can host the static `epusdt-docs` VitePress site.
 
-> Note: Cloudflare Pages is suitable for the static documentation website, not for the Epusdt payment service itself.
+> It does **not** run the Epusdt payment service itself.
 
-→ [Read the Cloudflare Pages deployment guide](/guide/installation/cloudflare)
+→ [Cloudflare Pages guide](/guide/installation/cloudflare)
 
 ## Before You Deploy
 
-Prepare the following information first:
+Prepare these items first:
 
-- Your public site domain, such as `https://pay.example.com`
-- A TronGrid API key for stable TRC20 transaction queries
-- Database connection details
+- a public domain or server address for the Epusdt service
+- a TronGrid API key
+- database settings if you plan to use MySQL or PostgreSQL
+- an `api_auth_token`
+- optional Telegram bot token and admin ID
 
-- An API token for external integrations
-- Optional Telegram bot token and admin user ID
+## Important Deployment Notes
 
-## Core Configuration Items
+### `app_uri` is a public URL, not a route prefix
 
-These settings are commonly required regardless of deployment method:
+In the current source code, Epusdt serves its routes at root-relative paths such as:
+
+- `/payments/epusdt/v1/order/create-transaction`
+- `/payments/gmpay/v1/order/create-transaction`
+- `/pay/checkout-counter/:trade_id`
+- `/pay/check-status/:trade_id`
+
+`app_uri` is used to build absolute URLs returned by the service, especially the checkout link. It does **not** make the app internally mount under `/something`.
+
+If you want to expose Epusdt under a subpath such as `/epusdt`, that must be handled by your reverse proxy or ingress rules.
+
+### Keep API routes and checkout routes separate
+
+Two route groups matter during deployment:
+
+- **Create-order API**: `/payments/...`
+- **Hosted checkout pages**: `/pay/...`
+
+Do not treat `/pay/...` as the API endpoint.
+
+## Common Configuration Items
 
 | Key | Description |
 |-----|-------------|
-| `app_name` | Application name shown in the admin UI |
-| `app_uri` | Public domain used by the checkout page and callbacks |
+| `app_name` | Application name shown in the UI |
+| `app_uri` | Public base URL used in generated checkout links |
+| `http_listen` | Bind address for the HTTP server, default `:8000` |
+| `db_type` | `sqlite`, `mysql`, or `postgres` |
 | `db_*` | Database connection settings |
-| `tron_api_key` / `tron_grid_api_key` | TronGrid API credential |
-| `usdt_rate` | USDT exchange-rate related setting |
-| `cny_rate` | RMB exchange-rate setting if used |
+| `tron_grid_api_key` | TronGrid API credential |
+| `api_auth_token` | API signing/auth token |
 | `order_expiration_time` | Minutes before an unpaid order expires |
-| `callback_timeout` | Timeout for callback delivery |
+| `callback_retry_base_seconds` | Base delay for callback retries |
+| `order_notice_max_retry` | Extra callback retries after the first attempt |
 
 ## Which Method Should You Choose?
 
 - **New deployment** → Docker
 - **BaoTa-based VPS** → BaoTa Panel
-- **Custom operations / source build** → Manual
+- **Custom Linux operations** → Manual
 - **Public docs hosting** → Cloudflare Pages
