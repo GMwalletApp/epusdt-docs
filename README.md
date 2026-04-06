@@ -15,7 +15,7 @@
 
 This repository contains the VitePress documentation site for **Epusdt**.
 
-**Epusdt** is a self-hosted USDT payment middleware for TRON-based checkout flows. It exposes create-order APIs, returns hosted checkout URLs, and notifies merchant systems with asynchronous callbacks after successful payment.
+**Epusdt** is a self-hosted TRON / TRC20 USDT payment middleware. It exposes create-order APIs under `/payments/...`, returns hosted checkout URLs, and notifies merchant systems with asynchronous callbacks after successful payment.
 
 ## Documentation site
 
@@ -29,8 +29,8 @@ This repository contains the VitePress documentation site for **Epusdt**.
 - Self-hosted deployment on your own server
 - Hosted checkout page at `/pay/checkout-counter/{trade_id}`
 - Create-order APIs under `/payments/...`
-- Multi-wallet polling for higher order concurrency
-- Optional Telegram bot notifications / management flows
+- Multi-address polling plus unique-amount reservation for higher order concurrency
+- Optional Telegram bot notifications / basic operational flows
 - Docker deployment example, plus source-build flexibility
 
 ## Local development

@@ -1,6 +1,6 @@
 # Introduction
 
-**Epusdt** (Easy Payment USDT) is a self-hosted payment middleware for **USDT checkout flows on TRON**.
+**Epusdt** (Easy Payment USDT) is a self-hosted payment middleware for **TRON / TRC20 USDT checkout flows**.
 
 It is designed for developers, merchants, and operators who want to run their own payment service, create orders through HTTP APIs, host a checkout page on their own domain, and receive asynchronous payment callbacks without relying on a custodial third-party gateway.
 
@@ -22,9 +22,9 @@ A typical payment flow looks like this:
 - **Self-hosted service** — deploy on your own server and keep payment infrastructure under your control.
 - **Hosted checkout page** — built-in `/pay/checkout-counter/{trade_id}` page for end-user payment.
 - **HTTP create-order APIs** — current routes live under `/payments/...`, including `/payments/epusdt/v1/order/create-transaction`.
-- **Multi-wallet polling** — supports multiple receiving addresses to improve concurrency.
-- **Asynchronous callbacks** — notifies your business system after successful payment.
-- **Telegram bot support** — optional notification and management workflow integration.
+- **Multi-address polling** — supports multiple receiving addresses, together with unique-amount reservation, to improve concurrency.
+- **Asynchronous callbacks** — notifies your business system after successful payment; callback success is based on HTTP `200` plus exact body `ok`.
+- **Telegram bot support** — optional notification and basic operational workflow integration.
 - **Flexible deployment** — Docker-first, with source builds also possible.
 
 ## Current scope and limitations
@@ -43,7 +43,7 @@ Based on the current source and deployment examples:
 - **Language/runtime:** Go application
 - **HTTP listen default:** `:8000`
 - **Database options:** `sqlite`, `mysql`, or `postgres`
-- **Recommended external dependency:** TronGrid API access for TRON/TRC20 chain queries
+- **Recommended external dependency:** TronGrid API access for TRON / TRC20 chain queries
 - **Deployment style:** Docker example is provided; source builds are also supported
 
 ## Important integration note
