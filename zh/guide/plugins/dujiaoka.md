@@ -1,114 +1,80 @@
 # 独角数卡集成指南
 
-[独角数卡](https://github.com/assimon/dujiaoka)（Dujiaoka）是一款流行的开源自动化虚拟商品售卖平台，广泛应用于数字商品交易场景。它支持多种支付网关，包括通过 Epusdt 接入 USDT 支付。
-
-本指南将引导你将 Epusdt 作为支付网关接入独角数卡。
+Epusdt 通过独角数卡支付插件接入。本文只保留和当前源码一致的配置方式、接口路径与回调说明。
 
 ## 前置条件
 
-开始之前，请确认以下环境已就绪：
-
 | 条件 | 说明 |
-|------|------|
-| 独角数卡 | 已安装并运行，管理后台可正常访问 |
-| Epusdt | 已部署且独角数卡服务器可以访问 Epusdt |
-| Epusdt API Token | 你的 Epusdt `.env` 或 `.env` 中配置的 `api_auth_token` 值 |
-| 网络互通 | 独角数卡服务器可以访问 Epusdt API 端点；Epusdt 可以访问独角数卡的回调地址 |
+| --- | --- |
+| 独角数卡 | 管理后台可正常访问。旧版本可能需要手动覆盖插件文件；较新版本可能已内置。 |
+| Epusdt | 独角数卡服务器可以访问到 Epusdt。 |
+| API Token | Epusdt `.env` 中的 `api_auth_token`。 |
+| 回调可达 | Epusdt 必须能够回 POST 到独角数卡的通知地址。 |
 
-## 集成步骤
+## 独角数卡插件实际会提交什么
 
-### 1. 登录独角数卡管理后台
+官方插件创建订单时会向 Epusdt 提交：
 
-在浏览器中打开独角数卡管理后台，使用管理员账号登录。
+- `amount`
+- `order_id`
+- `notify_url`
+- `redirect_url`
+- `signature`
 
-### 2. 进入支付网关设置
+也就是说，`notify_url` 和 `redirect_url` 不是你在 Epusdt 里手动填写的，而是由独角数卡按订单自动生成。
 
-在左侧菜单栏中，找到 **系统设置 → 支付设置**。
+## 独角数卡后台配置
 
-### 3. 添加 Epusdt 支付方式
+在独角数卡里新增或编辑 **Epusdt** 支付方式，字段映射如下：
 
-点击 **新增支付** 或查找 Epusdt 支付选项。如果 Epusdt 已作为内置插件列出，直接选择即可。否则选择 **自定义** 并手动填写配置。
+| 独角数卡字段 | 填写值 |
+| --- | --- |
+| 商户 ID | Epusdt 的 `api_auth_token` |
+| 商户 Key | 留空 |
+| 商户密钥 / 接口地址 | `https://your-epusdt-domain/payments/epusdt/v1/order/create-transaction` |
 
-### 4. 填写配置信息
+说明：
 
-填入以下参数：
+- 这里要填的是**完整请求地址**，不是单纯域名。
+- 如果独角数卡和 Epusdt 在同一台机器上，可直接使用 `http://127.0.0.1:8000/payments/epusdt/v1/order/create-transaction`，避免额外的反代问题。
+- 旧路径 `/api/v1/order/create-transaction` 目前仍有兼容转发，但新部署建议直接使用 `/payments/epusdt/v1/order/create-transaction`。
 
-| 配置项 | 值 | 说明 |
-|--------|-----|------|
-| 网关地址 | Epusdt 服务的公网访问地址 | 填写独角数卡可以访问到的 Epusdt 完整地址。默认监听 `8000` 端口。 |
-| API 端点 | `/payments/epusdt/v1/order/create-transaction` | 订单创建接口路径，这是当前推荐的路由。 |
-| App Token / 密钥 | Epusdt 中 `api_auth_token` 的确切值 | 必须与 Epusdt `.env` 或 `.env` 中配置的 `api_auth_token` 完全一致。 |
-| 回调地址（notify_url） | 自动处理 | Epusdt 会根据创建订单时传入的 `notify_url` 自动发送回调通知。独角数卡在创建订单时会自动设置此字段。 |
+## 回调与返回页
 
-### 5. 启用支付方式
+官方独角数卡插件侧使用的路由为：
 
-将 Epusdt 支付方式切换为 **启用** 状态，使其在客户结算页面中可见。
+- 异步通知：`POST /pay/epusdt/notify_url`
+- 同步返回：`GET /pay/epusdt/return_url?order_id=...`
 
-### 6. 创建测试订单
+Epusdt 支付完成后会向通知地址发起回调。独角数卡校验签名并完成业务处理后，应返回纯文本 `ok`；否则 Epusdt 会按失败通知进行重试。
 
-创建一个低价测试商品（例如等值 0.01 USDT），完成一笔购买以验证：
+## 测试检查项
 
-- 收银台页面正常加载并显示钱包地址
-- 发送 USDT 后支付被正确检测
-- 独角数卡收到回调通知并将订单标记为已支付
-- 虚拟商品成功发货给买家
+下一个小额测试单，确认：
 
-## 从旧插件迁移
-
-如果你之前使用的独角数卡 Epusdt 插件指向旧版 API 路由：
-
-```text
-/api/v1/order/create-transaction
-```
-
-请注意以下事项：
-
-- **旧路由仍然可用。** Epusdt 内置了兼容性转发层，会将旧路径的请求自动转发到新处理器。
-- **建议更新。** 将网关配置切换到新端点以确保长期兼容性：
-
-```text
-/payments/epusdt/v1/order/create-transaction
-```
-
-迁移操作非常简单：只需在独角数卡支付网关设置中更新 API 端点字段即可。请求和响应格式保持不变，无需其他修改。
+- 独角数卡能正常跳转到 Epusdt 返回的 `payment_url`
+- 链上到账后支付状态会更新
+- 独角数卡能收到回调并把订单标记为已支付
+- 用户会被带回独角数卡订单详情页
 
 ## 常见问题
 
 ### 签名校验失败
 
-**现象：** 创建订单时返回签名验证错误。
+独角数卡里的 **商户 ID** 必须填写 Epusdt 的 `api_auth_token` 原值。多一个空格、少一个字符都会导致签名失败。
 
-**原因：** 独角数卡中配置的密钥与 Epusdt 部署中的 `api_auth_token` 不一致。
+### 回调没有收到
 
-**解决方法：** 打开 Epusdt 的 `.env` 或 `.env`，复制 `api_auth_token` 的确切值，粘贴到独角数卡支付网关设置中。确保没有多余的空格或换行符。
+检查独角数卡通知地址是否能被 Epusdt 所在服务器公网访问，并确认防火墙、反向代理没有拦截该 POST 请求。
 
-### 回调未收到
+### 接口地址填错
 
-**现象：** 链上已确认支付，但独角数卡仍显示订单为未支付状态。
+如果现在仍然配置的是 `/api/v1/order/create-transaction`，建议更新为：
 
-**原因：** Epusdt 无法访问独角数卡提供的 `notify_url`。
+```text
+/payments/epusdt/v1/order/create-transaction
+```
 
-**解决方法：**
-1. 确保独角数卡的域名可以从 Epusdt 所在服务器公网访问。
-2. 检查防火墙规则 — Epusdt 服务器需要能够向独角数卡回调地址发起 HTTP/HTTPS 请求。
-3. 确认 Epusdt 配置中的 `app_uri` 设置为正确的公网域名。
-4. 查看 Epusdt 日志中是否有回调投递错误信息。
+### 订单过期太快
 
-### 订单在支付前过期
-
-**现象：** 客户已发送 USDT，但订单已经过期。
-
-**原因：** Epusdt 中的 `order_expiration_time` 设置过短，客户未能在有效期内完成支付。
-
-**解决方法：** 增大 Epusdt `.env` 或 `.env` 中的 `order_expiration_time` 值。默认通常为 10 分钟。对于较慢的网络或手动转账场景，建议设置为 15–30 分钟。
-
-### 收银台页面无法加载
-
-**现象：** 客户点击「USDT 支付」后看到空白页面或连接错误。
-
-**原因：** 独角数卡中配置的网关地址不正确，或 Epusdt 服务未运行。
-
-**解决方法：**
-1. 确认 Epusdt 服务正在运行：检查进程状态或尝试访问管理面板。
-2. 确认独角数卡中的网关地址指向正确的 Epusdt 地址和端口。
-3. 如果使用了反向代理（Nginx、Caddy），确保请求被正确转发到 Epusdt 后端。
+如果用户转账时间偏长，可适当调大 Epusdt 中的 `order_expiration_time`。
