@@ -24,6 +24,11 @@ POST /payments/gmpay/v1/order/create-transaction
 
 ### Request Parameters
 
+Request method/content-type for create-order:
+
+- `POST`
+- `application/json`
+
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `order_id` | string | ✅ | Your unique order ID, max 32 chars |

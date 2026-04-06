@@ -52,9 +52,13 @@ amount=42&notify_url=http://example.com/notify&order_id=20220201030210321&redire
 
 ## Request Format
 
-- Method: `POST` or `GET`
-- POST supports `application/json` and `application/x-www-form-urlencoded`
+- Method: `POST`
+- Content-Type: `application/json`
 - Encoding: UTF-8
+
+::: warning
+Current source registers `create-transaction` as `POST` only, and signature middleware parses the raw body as JSON before verification. In practice, `GET` and `application/x-www-form-urlencoded` requests are not valid for this endpoint.
+:::
 
 ## Response Format
 

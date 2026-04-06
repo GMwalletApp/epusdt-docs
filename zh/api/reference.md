@@ -50,9 +50,13 @@ amount=42&notify_url=http://example.com/notify&order_id=20220201030210321&redire
 
 ## 请求格式
 
-- Method：`POST` 或 `GET`
-- POST 支持 `application/json` 或 `application/x-www-form-urlencoded`
+- Method：`POST`
+- Content-Type：`application/json`
 - 编码：UTF-8
+
+::: warning
+当前源码仅注册了 `POST` 的 `create-transaction` 路由，且验签中间件会先按 JSON 解析原始请求体再校验签名。实际接入中，`GET` 与 `application/x-www-form-urlencoded` 不是该接口的有效请求方式。
+:::
 
 ## 响应格式
 

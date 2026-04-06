@@ -24,6 +24,11 @@ POST /payments/gmpay/v1/order/create-transaction
 
 ### 请求参数
 
+创建订单接口请求方式：
+
+- `POST`
+- `application/json`
+
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `order_id` | string | ✅ | 业务订单号，最长 32 个字符 |
