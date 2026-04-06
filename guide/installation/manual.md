@@ -4,7 +4,7 @@ This guide covers building and deploying Epusdt manually, without Docker or BaoT
 
 ## Prerequisites
 
-- **Go 1.16+**
+- **A Go toolchain compatible with the current source repository's `src/go.mod`** (at review time: **Go 1.25.0**)
 - **Git**
 - A Linux server
 - **Nginx** or another reverse proxy for production HTTPS

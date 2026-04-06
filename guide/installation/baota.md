@@ -15,6 +15,8 @@ Prepare the following before deployment:
 - A valid **TronGrid API key**
 - A built `epusdt` binary or official release package
 
+If you plan to compile the binary yourself before uploading it to BaoTa, use a Go toolchain compatible with the current source repository's `src/go.mod` (at review time: **Go 1.25.0**).
+
 Database choices supported by current source:
 
 - **SQLite**: simplest option, no external database service required
