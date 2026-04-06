@@ -1,50 +1,61 @@
 # 支付接口
 
-本页说明完整的支付接入流程：创建订单、跳转收银台、处理回调以及查询订单状态。
+本页说明当前版本的支付接入流程：创建订单、跳转收银台、处理回调，以及查询订单状态。
 
 ## 创建交易
 
-创建一个新的支付订单。Epusdt 会为该订单锁定一个钱包地址和应付金额。
+创建新的支付订单。Epusdt 会在订单有效期内锁定一个收款地址和应付金额。
 
-**接口地址：**
+**当前线上接口：**
 
 ```
 POST /payments/epusdt/v1/order/create-transaction
 ```
 
-同时也支持以下别名路径：
+**同时可用：**
 
 ```
 POST /payments/gmpay/v1/order/create-transaction
 ```
 
+::: tip
+当前源码中的真实 API 前缀是 `/payments/...`。旧文档中的 `/api/v1/order/create-transaction` 属于历史路径，不是当前注册路由。
+:::
+
 ### 请求参数
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `order_id` | string | ✅ | 你的业务订单号，必须唯一，不能重复使用 |
-| `amount` | float | ✅ | 法币金额，默认按 CNY 处理 |
-| `notify_url` | string | ✅ | 支付成功后的异步通知地址 |
-| `redirect_url` | string | ❌ | 支付完成后用户跳转地址 |
-| `currency` | string | ❌ | 法币币种，默认：`cny` |
-| `token` | string | ❌ | 支付币种，默认：`usdt` |
-| `network` | string | ❌ | 区块链网络，默认：`TRON` |
-| `signature` | string | ✅ | MD5 签名，见下文 |
+| `order_id` | string | ✅ | 业务订单号，最长 32 个字符 |
+| `amount` | float | ✅ | 法币金额，必须大于 `0.01` |
+| `notify_url` | string | ✅ | 异步通知地址，支付成功后会向此地址发起 POST |
+| `redirect_url` | string | ❌ | 用户支付成功后的跳转地址 |
+| `currency` | string | ✅* | 法币币种 |
+| `token` | string | ✅* | 支付币种 |
+| `network` | string | ✅* | 区块链网络 |
+| `signature` | string | ✅ | MD5 签名 |
+
+`*` 共享请求校验器要求 `currency`、`token`、`network` 必填。但当前 `/payments/epusdt/v1/...` 路由会在缺省时自动补默认值：
+
+- `currency = cny`
+- `token = usdt`
+- `network = TRON`
+
+而 `/payments/gmpay/v1/...` 路由**不会**补这些默认值。
 
 ### 签名生成
 
-`signature` 用于保证请求未被篡改，生成规则如下：
+`signature` 生成规则：
 
-1. 收集所有请求参数中**值不为空**的字段（`''` 和 `null` 不参与签名）
-2. 排除 `signature` 字段本身
-3. 按参数名的 ASCII 码升序排列（字典序）
-4. 拼接成 `key=value&key=value` 格式的字符串
-5. 将你的 `api_auth_token` **直接追加**到字符串末尾，**不加** `&` 或 `=`
-6. 对完整字符串计算 **MD5** 哈希，转为**小写**即为 `signature`（32 位）
+1. 收集所有非空参数，排除 `signature`
+2. 按参数名 ASCII 升序排序
+3. 拼成 `key=value&key=value`
+4. 直接在末尾追加 `api_auth_token`
+5. 计算小写 MD5
 
 #### 示例
 
-假设请求参数如下：
+已知：
 
 ```
 order_id = "20220201030210321"
@@ -59,35 +70,23 @@ Token：
 api_auth_token = "epusdt_password_xasddawqe"
 ```
 
-**第 1 步：按字母排序后顺序为：**
-
-```
-amount, notify_url, order_id, redirect_url
-```
-
-**第 2 步：拼接参数字符串：**
+排序后字符串：
 
 ```
 amount=42&notify_url=http://example.com/notify&order_id=20220201030210321&redirect_url=http://example.com/redirect
 ```
 
-**第 3 步：在末尾直接追加 Token：**
+末尾追加 Token：
 
 ```
 amount=42&notify_url=http://example.com/notify&order_id=20220201030210321&redirect_url=http://example.com/redirectepusdt_password_xasddawqe
 ```
 
-**第 4 步：计算小写 MD5：**
+MD5：
 
 ```
-md5(上述字符串) = 1cd4b52df5587cfb1968b0c0c6e156cd
+1cd4b52df5587cfb1968b0c0c6e156cd
 ```
-
-#### 签名规则
-
-- 值为空的参数不参与签名
-- `signature` 字段本身不参与签名
-- MD5 结果必须为小写
 
 #### 代码示例
 
@@ -149,19 +148,20 @@ func EpusdtSign(params map[string]string, token string) string {
 
 ```json
 {
-  "status": 1,
-  "message": "ok",
+  "status_code": 200,
+  "message": "success",
   "data": {
     "trade_id": "EP20240101XXXXXXXX",
     "order_id": "ORDER_20240101_001",
-    "amount": 100.00,
+    "amount": 100.0,
+    "currency": "cny",
     "actual_amount": 14.28,
-    "token": "usdt",
-    "network": "TRON",
     "receive_address": "TXXXXXXXXXXXXXXXXXXxx",
-    "expiration_time": 10,
-    "checkout_url": "http://your-server:8000/pay/checkout-counter/EP20240101XXXXXXXX"
-  }
+    "token": "usdt",
+    "expiration_time": 1712500000,
+    "payment_url": "http://your-server:8000/pay/checkout-counter/EP20240101XXXXXXXX"
+  },
+  "request_id": "b1344d70-ff19-4543-b601-37abfb3b3686"
 }
 ```
 
@@ -172,74 +172,67 @@ func EpusdtSign(params map[string]string, token string) string {
 | `trade_id` | string | Epusdt 内部交易号 |
 | `order_id` | string | 你的业务订单号 |
 | `amount` | float | 原始法币金额 |
-| `actual_amount` | float | 用户实际需要支付的 USDT 金额 |
-| `token` | string | 币种，例如 `usdt` |
-| `network` | string | 区块链网络，例如 `TRON` |
-| `receive_address` | string | 用户付款使用的钱包地址 |
-| `expiration_time` | int | 订单过期时间，单位：分钟 |
-| `checkout_url` | string | 托管收银台页面地址 |
+| `currency` | string | 法币币种 |
+| `actual_amount` | float | 用户实际需要支付的代币金额 |
+| `receive_address` | string | 收款地址 |
+| `token` | string | 代币符号，例如 `usdt` |
+| `expiration_time` | int | 过期时间，Unix 秒级时间戳 |
+| `payment_url` | string | 托管收银台地址 |
+
+当前创建订单响应中**不包含** `network` 字段。
 
 ## 支付流程
 
-创建交易后，推荐按以下流程接入：
-
 ```
 1. 你的服务端调用创建交易接口
-2. Epusdt 返回 trade_id、receive_address、checkout_url
-3. 将用户跳转到 checkout_url（或者你自行展示地址与二维码）
-4. 用户向 receive_address 转入 USDT
+2. Epusdt 返回 `trade_id`、`receive_address`、`payment_url`
+3. 将用户跳转到 `payment_url`，或自行展示地址 / 二维码
+4. 用户向 `receive_address` 转账
 5. Epusdt 监听到链上到账
-6. Epusdt 向 notify_url 发起 POST 回调
-7. 你的服务端验签并返回 "ok"
-8. （可选）用户跳转到 redirect_url
+6. Epusdt 向 `notify_url` 发起 POST 回调
+7. 你的服务端验签并返回精确的 `ok`
+8. 如果配置了 `redirect_url`，托管收银台会在支付成功后跳转
 ```
 
 ## 收银台页面
 
-你可以将用户直接跳转到 Epusdt 托管的支付页面：
+托管收银台路由：
 
 ```
 GET /pay/checkout-counter/:trade_id
 ```
 
-**示例：**
+示例：
 
 ```
 https://pay.example.com/pay/checkout-counter/EP20240101XXXXXXXX
 ```
 
-收银台页面通常包含：
-- 需要支付的 USDT 金额
-- 收款地址（支持复制）
-- 钱包扫码二维码
-- 倒计时
-- 实时支付状态
-
 ## 查询订单状态
 
-查询某个订单当前的支付状态：
+状态轮询路由：
 
 ```
 GET /pay/check-status/:trade_id
 ```
 
-**示例：**
+示例：
 
 ```
 GET https://pay.example.com/pay/check-status/EP20240101XXXXXXXX
 ```
 
-**响应示例：**
+响应示例：
 
 ```json
 {
-  "status": 1,
-  "message": "ok",
+  "status_code": 200,
+  "message": "success",
   "data": {
     "trade_id": "EP20240101XXXXXXXX",
-    "order_id": "ORDER_20240101_001",
     "status": 2
-  }
+  },
+  "request_id": "b1344d70-ff19-4543-b601-37abfb3b3686"
 }
 ```
 
@@ -248,12 +241,14 @@ GET https://pay.example.com/pay/check-status/EP20240101XXXXXXXX
 | 状态值 | 含义 |
 |--------|------|
 | `1` | 等待支付 |
-| `2` | 已确认支付成功 |
-| `3` | 订单已过期 |
+| `2` | 支付成功 |
+| `3` | 已过期 |
 
 ## 回调 / Webhook
 
-当链上确认支付成功后，Epusdt 会向你创建订单时提供的 `notify_url` 发起一个 POST 请求。
+当链上确认支付成功后，Epusdt 会向创建订单时传入的 `notify_url` 发起 POST 请求。
+
+回调体使用与创建订单相同的 MD5 算法和 `api_auth_token` 进行签名。
 
 ### 回调数据格式
 
@@ -261,10 +256,11 @@ GET https://pay.example.com/pay/check-status/EP20240101XXXXXXXX
 {
   "trade_id": "EP20240101XXXXXXXX",
   "order_id": "ORDER_20240101_001",
-  "amount": 100.00,
+  "amount": 100.0,
   "actual_amount": 14.28,
+  "receive_address": "TXXXXXXXXXXXXXXXXXXxx",
   "token": "usdt",
-  "network": "TRON",
+  "block_transaction_id": "4d7d...",
   "status": 2,
   "signature": "a1b2c3d4e5f6..."
 }
@@ -277,155 +273,50 @@ GET https://pay.example.com/pay/check-status/EP20240101XXXXXXXX
 | `trade_id` | string | Epusdt 内部交易号 |
 | `order_id` | string | 你的业务订单号 |
 | `amount` | float | 原始法币金额 |
-| `actual_amount` | float | 实际支付的 USDT 金额 |
-| `token` | string | 支付币种 |
-| `network` | string | 区块链网络 |
+| `actual_amount` | float | 实际到账代币金额 |
+| `receive_address` | string | 收款地址 |
+| `token` | string | 代币符号 |
+| `block_transaction_id` | string | 链上交易 ID |
 | `status` | int | 订单状态，`2` 表示已支付 |
-| `signature` | string | MD5 签名，用于验签 |
+| `signature` | string | 用于验签的 MD5 签名 |
+
+当前回调体中**不包含** `network` 字段。
 
 ### 如何校验回调签名
 
-务必对回调中的 `signature` 进行验证，确保请求确实来自你的 Epusdt 服务：
+规则与创建订单签名完全一致：
 
-1. 取回调中所有**值不为空**的字段，排除 `signature`
-2. 按字段名 ASCII 码升序排列
-3. 拼接成 `key=value&key=value` 格式的字符串
-4. 在末尾直接追加 `api_auth_token`
-5. 计算小写 **MD5**，与回调中的 `signature` 做比对
-
-验签逻辑与前面介绍的 [签名生成](#签名生成) 完全一致。
+1. 保留所有非空字段，排除 `signature`
+2. 按 key 排序
+3. 拼成 `key=value&key=value`
+4. 末尾追加 `api_auth_token`
+5. 计算小写 MD5 后比对
 
 ### 回调响应要求
 
 ::: danger 重要
-你的服务端**必须**返回纯文本 `ok`（HTTP 200）作为回调成功确认。
+你的服务端**必须**返回 **HTTP 200**，且响应体必须是精确的纯文本 `ok`。
 
-如果 Epusdt 没有收到精确的 `ok` 响应，它会持续重试回调，直到：
-- 你的服务端返回 `ok`
-- 或者超过 `.env` 中配置的 `callback_timeout`
-:::
+当前源码中的重试行为由配置决定，不是固定写死的重试次数：
 
-**回调处理示例：**
+- `order_notice_max_retry`：首次尝试之后允许的最大重试次数
+- `callback_retry_base_seconds`：指数退避的基础秒数
 
-::: code-group
+`.env.example` 默认值为：
 
-```python [Python / Flask]
-from flask import Flask, request
-import hashlib
+- `order_notice_max_retry=0`
+- `callback_retry_base_seconds=5`
 
-app = Flask(__name__)
-
-def epusdt_sign(params: dict, token: str) -> str:
-    filtered = {k: v for k, v in params.items() if v != '' and v is not None and k != 'signature'}
-    sorted_str = '&'.join(f"{k}={v}" for k, v in sorted(filtered.items()))
-    return hashlib.md5((sorted_str + token).encode()).hexdigest()
-
-@app.route("/callback", methods=["POST"])
-def payment_callback():
-    data = request.json
-
-    # 1. 验签
-    expected_sig = epusdt_sign(data, "your_api_auth_token")
-    if data.get("signature") != expected_sig:
-        return "signature mismatch", 400
-
-    # 2. 处理支付成功
-    if data.get("status") == 2:
-        order_id = data["order_id"]
-        # 在你的数据库中将订单标记为已支付
-        mark_order_paid(order_id)
-
-    # 3. 必须返回 ok
-    return "ok"
-```
-
-```javascript [Node.js / Express]
-const express = require("express");
-const crypto = require("crypto");
-const app = express();
-app.use(express.json());
-
-function epusdtSign(params, token) {
-  const filtered = Object.entries(params)
-    .filter(([key, value]) => key !== "signature" && value !== "" && value !== null)
-    .sort(([a], [b]) => a.localeCompare(b));
-
-  const sortedStr = filtered
-    .map(([key, value]) => `${key}=${value}`)
-    .join("&");
-
-  return crypto
-    .createHash("md5")
-    .update(sortedStr + token)
-    .digest("hex");
-}
-
-app.post("/callback", (req, res) => {
-  const data = req.body;
-
-  // 1. 验签
-  const expectedSig = epusdtSign(data, "your_api_auth_token");
-  if (data.signature !== expectedSig) {
-    return res.status(400).send("signature mismatch");
-  }
-
-  // 2. 处理支付成功
-  if (data.status === 2) {
-    const orderId = data.order_id;
-    // 在你的数据库中将订单标记为已支付
-    markOrderPaid(orderId);
-  }
-
-  // 3. 必须返回 ok
-  res.send("ok");
-});
-```
-
-```php [PHP]
-<?php
-$data = json_decode(file_get_contents('php://input'), true);
-
-function epusdtSign(array $parameter, string $signKey): string {
-    ksort($parameter);
-    reset($parameter);
-    $sign = '';
-    foreach ($parameter as $key => $val) {
-        if ($val === '' || $val === null) continue;
-        if ($key === 'signature') continue;
-        if ($sign !== '') $sign .= '&';
-        $sign .= "$key=$val";
-    }
-    return md5($sign . $signKey);
-}
-
-$expectedSig = epusdtSign($data, 'your_api_auth_token');
-if ($data['signature'] !== $expectedSig) {
-    http_response_code(400);
-    echo 'signature mismatch';
-    exit;
-}
-
-if ($data['status'] == 2) {
-    $orderId = $data['order_id'];
-    // 在你的数据库中将订单标记为已支付
-    markOrderPaid($orderId);
-}
-
-echo 'ok';
-```
-
+所以在默认配置下，会执行第一次回调；如果失败，不会继续额外重试。
 :::
 
 ## 完整接入示例
-
-下面是一个完整的 Python 示例，演示如何创建订单：
 
 ```python
 import hashlib
 import requests
 
 API_BASE = "https://pay.example.com"
-API_TOKEN = "your_api_token"
 API_AUTH_TOKEN = "your_api_auth_token"
 
 def epusdt_sign(params: dict, token: str) -> str:
@@ -444,16 +335,15 @@ def create_order(order_id: str, amount: float, notify_url: str):
     response = requests.post(
         f"{API_BASE}/payments/epusdt/v1/order/create-transaction",
         json=params,
-        headers={"Authorization": f"Bearer {API_TOKEN}"},
     )
     result = response.json()
 
-    if result["status"] == 1:
+    if result["status_code"] == 200:
         data = result["data"]
         print(f"Trade ID:     {data['trade_id']}")
         print(f"USDT 金额:     {data['actual_amount']}")
         print(f"收款地址:      {data['receive_address']}")
-        print(f"收银台链接:    {data['checkout_url']}")
+        print(f"收银台链接:    {data['payment_url']}")
         return data
     else:
         print(f"错误: {result['message']}")
@@ -464,11 +354,12 @@ create_order("ORDER_001", 100.00, "https://example.com/callback")
 
 ## 错误处理建议
 
-| 状态码 | 常见消息 | 处理建议 |
-|--------|----------|----------|
-| `400` | `invalid params` | 检查必填字段和数据类型 |
-| `401` | `unauthorized` | 检查 API Token 是否正确 |
-| `10003` | `duplicate order` | 使用未重复的 `order_id` |
-| `10004` | `amount out of range` | 检查金额是否超出配置限制 |
-| `10005` | `no available address` | 添加更多钱包地址 |
-| `10008` | `signature failed` | 检查签名逻辑与密钥是否正确 |
+| 状态码 | 消息 | 处理建议 |
+|--------|------|----------|
+| `400` | system / validation error | 检查请求体和必填字段 |
+| `401` | `signature verification failed` | 检查签名逻辑与 `api_auth_token` |
+| `10002` | `order already exists` | 使用未重复的 `order_id` |
+| `10003` | `no available wallet address` | 增加更多钱包地址 |
+| `10004` | `invalid payment amount` | 检查金额限制和最小值 |
+| `10005` | `no available amount channel` | 更换金额重试，或检查金额通道分配 |
+| `10008` | `order does not exist` | 检查查询的 `trade_id` 是否正确 |

@@ -1,50 +1,61 @@
 # Payment API
 
-This page covers the full payment integration flow: creating transactions, redirecting users, handling callbacks, and checking order status.
+This page covers the current payment integration flow: creating transactions, redirecting users, handling callbacks, and checking order status.
 
 ## Create Transaction
 
-Create a new payment order. Epusdt will lock a wallet address and amount for the customer.
+Create a new payment order. Epusdt locks a wallet address and amount for the order window.
 
-**Endpoint:**
+**Live endpoint:**
 
 ```
 POST /payments/epusdt/v1/order/create-transaction
 ```
 
-An alias is also available:
+**Also available:**
 
 ```
 POST /payments/gmpay/v1/order/create-transaction
 ```
 
+::: tip
+`/payments/...` is the current live API prefix. `/api/v1/order/create-transaction` is a legacy path from older docs, not a registered route in current source.
+:::
+
 ### Request Parameters
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `order_id` | string | ✅ | Your unique order ID (must not be reused) |
-| `amount` | float | ✅ | Payment amount in fiat currency (default: CNY) |
-| `notify_url` | string | ✅ | Callback URL — Epusdt will POST here when payment is confirmed |
-| `redirect_url` | string | ❌ | URL to redirect the customer after payment |
-| `currency` | string | ❌ | Fiat currency code. Default: `cny` |
-| `token` | string | ❌ | Cryptocurrency to receive. Default: `usdt` |
-| `network` | string | ❌ | Blockchain network. Default: `TRON` |
-| `signature` | string | ✅ | MD5 signature (see [Signature Generation](#signature-generation)) |
+| `order_id` | string | ✅ | Your unique order ID, max 32 chars |
+| `amount` | float | ✅ | Fiat amount; must be greater than `0.01` |
+| `notify_url` | string | ✅ | Callback URL; Epusdt POSTs here after payment success |
+| `redirect_url` | string | ❌ | Customer redirect URL after payment |
+| `currency` | string | ✅* | Fiat currency code |
+| `token` | string | ✅* | Token symbol |
+| `network` | string | ✅* | Blockchain network |
+| `signature` | string | ✅ | MD5 signature |
+
+`*` The shared request validator requires `currency`, `token`, and `network`. On the live `/payments/epusdt/v1/...` route, current source injects defaults when omitted:
+
+- `currency = cny`
+- `token = usdt`
+- `network = TRON`
+
+The `/payments/gmpay/v1/...` route does **not** inject these defaults.
 
 ### Signature Generation
 
-The signature ensures request integrity. Generate it with the following rules:
+Generate `signature` with these rules:
 
-1. Collect all request parameters with **non-empty values** (`''` and `null` are excluded)
-2. Exclude the `signature` field itself
-3. Sort parameters by key name in ASCII order (dictionary order)
-4. Build the string in `key=value&key=value` format
-5. Append your `api_auth_token` **directly to the end** of that string — **do not** add `&` or `=`
-6. Compute the **MD5** hash of the full string and convert it to **lowercase**
+1. Collect all non-empty parameters except `signature`
+2. Sort by key in ASCII ascending order
+3. Join as `key=value&key=value`
+4. Append `api_auth_token` directly to the end
+5. Compute lowercase MD5
 
 #### Example
 
-Given these parameters:
+Given:
 
 ```
 order_id = "20220201030210321"
@@ -59,35 +70,23 @@ Token:
 api_auth_token = "epusdt_password_xasddawqe"
 ```
 
-**Step 1 — Sort alphabetically:**
-
-```
-amount, notify_url, order_id, redirect_url
-```
-
-**Step 2 — Build the sorted parameter string:**
+Sorted string:
 
 ```
 amount=42&notify_url=http://example.com/notify&order_id=20220201030210321&redirect_url=http://example.com/redirect
 ```
 
-**Step 3 — Append the token directly at the end:**
+Append token:
 
 ```
 amount=42&notify_url=http://example.com/notify&order_id=20220201030210321&redirect_url=http://example.com/redirectepusdt_password_xasddawqe
 ```
 
-**Step 4 — Compute lowercase MD5:**
+MD5:
 
 ```
-md5(above) = 1cd4b52df5587cfb1968b0c0c6e156cd
+1cd4b52df5587cfb1968b0c0c6e156cd
 ```
-
-#### Rules
-
-- Exclude empty parameters from signing
-- Exclude the `signature` field itself
-- MD5 output must be lowercase
 
 #### Code Examples
 
@@ -149,19 +148,20 @@ func EpusdtSign(params map[string]string, token string) string {
 
 ```json
 {
-  "status": 1,
-  "message": "ok",
+  "status_code": 200,
+  "message": "success",
   "data": {
     "trade_id": "EP20240101XXXXXXXX",
     "order_id": "ORDER_20240101_001",
-    "amount": 100.00,
+    "amount": 100.0,
+    "currency": "cny",
     "actual_amount": 14.28,
-    "token": "usdt",
-    "network": "TRON",
     "receive_address": "TXXXXXXXXXXXXXXXXXXxx",
-    "expiration_time": 10,
-    "checkout_url": "http://your-server:8000/pay/checkout-counter/EP20240101XXXXXXXX"
-  }
+    "token": "usdt",
+    "expiration_time": 1712500000,
+    "payment_url": "http://your-server:8000/pay/checkout-counter/EP20240101XXXXXXXX"
+  },
+  "request_id": "b1344d70-ff19-4543-b601-37abfb3b3686"
 }
 ```
 
@@ -172,74 +172,67 @@ func EpusdtSign(params map[string]string, token string) string {
 | `trade_id` | string | Epusdt internal trade ID |
 | `order_id` | string | Your original order ID |
 | `amount` | float | Original fiat amount |
-| `actual_amount` | float | Actual USDT amount the customer needs to pay |
-| `token` | string | Cryptocurrency type (e.g. `usdt`) |
-| `network` | string | Blockchain network (e.g. `TRON`) |
-| `receive_address` | string | USDT wallet address for the customer to send to |
-| `expiration_time` | int | Order expiration time in minutes |
-| `checkout_url` | string | URL of the hosted payment page |
+| `currency` | string | Fiat currency code |
+| `actual_amount` | float | Actual token amount the customer needs to pay |
+| `receive_address` | string | Payment address |
+| `token` | string | Token symbol, such as `usdt` |
+| `expiration_time` | int | Expiration Unix timestamp in seconds |
+| `payment_url` | string | Hosted checkout URL |
+
+Current create-order response does **not** include `network`.
 
 ## Payment Flow
 
-After creating a transaction, follow this flow:
-
 ```
-1. Your server calls Create Transaction API
-2. Epusdt returns trade_id, receive_address, checkout_url
-3. Redirect customer to checkout_url (or display QR code yourself)
-4. Customer sends USDT to receive_address
+1. Your server calls the create-transaction API
+2. Epusdt returns `trade_id`, `receive_address`, and `payment_url`
+3. Redirect the customer to `payment_url` or render the address / QR code yourself
+4. Customer sends funds to `receive_address`
 5. Epusdt detects payment on-chain
-6. Epusdt POSTs callback to your notify_url
-7. Your server verifies signature and returns "ok"
-8. (Optional) Customer is redirected to redirect_url
+6. Epusdt POSTs a callback to `notify_url`
+7. Your server verifies the signature and returns exact body `ok`
+8. If `redirect_url` exists, the hosted checkout page redirects the user after success
 ```
 
 ## Checkout Page
 
-Redirect the customer to the hosted payment page:
+Hosted checkout page:
 
 ```
 GET /pay/checkout-counter/:trade_id
 ```
 
-**Example:**
+Example:
 
 ```
 https://pay.example.com/pay/checkout-counter/EP20240101XXXXXXXX
 ```
 
-The checkout page displays:
-- USDT amount to pay
-- Wallet address (with copy button)
-- QR code for wallet apps
-- Countdown timer
-- Real-time payment status
-
 ## Check Order Status
 
-Query the current status of an order:
+Status polling endpoint:
 
 ```
 GET /pay/check-status/:trade_id
 ```
 
-**Example:**
+Example:
 
 ```
 GET https://pay.example.com/pay/check-status/EP20240101XXXXXXXX
 ```
 
-**Response:**
+Response:
 
 ```json
 {
-  "status": 1,
-  "message": "ok",
+  "status_code": 200,
+  "message": "success",
   "data": {
     "trade_id": "EP20240101XXXXXXXX",
-    "order_id": "ORDER_20240101_001",
     "status": 2
-  }
+  },
+  "request_id": "b1344d70-ff19-4543-b601-37abfb3b3686"
 }
 ```
 
@@ -248,12 +241,14 @@ GET https://pay.example.com/pay/check-status/EP20240101XXXXXXXX
 | Status | Meaning |
 |--------|---------|
 | `1` | Waiting for payment |
-| `2` | Payment confirmed (paid) |
-| `3` | Order expired |
+| `2` | Payment success |
+| `3` | Expired |
 
 ## Callback / Webhook
 
-When a payment is confirmed on-chain, Epusdt sends a POST request to the `notify_url` you specified when creating the transaction.
+When payment is confirmed on-chain, Epusdt POSTs to the `notify_url` from the create-order request.
+
+The callback body is signed with the same MD5 algorithm and `api_auth_token` used for create-order requests.
 
 ### Callback Payload
 
@@ -261,10 +256,11 @@ When a payment is confirmed on-chain, Epusdt sends a POST request to the `notify
 {
   "trade_id": "EP20240101XXXXXXXX",
   "order_id": "ORDER_20240101_001",
-  "amount": 100.00,
+  "amount": 100.0,
   "actual_amount": 14.28,
+  "receive_address": "TXXXXXXXXXXXXXXXXXXxx",
   "token": "usdt",
-  "network": "TRON",
+  "block_transaction_id": "4d7d...",
   "status": 2,
   "signature": "a1b2c3d4e5f6..."
 }
@@ -277,158 +273,50 @@ When a payment is confirmed on-chain, Epusdt sends a POST request to the `notify
 | `trade_id` | string | Epusdt internal trade ID |
 | `order_id` | string | Your original order ID |
 | `amount` | float | Original fiat amount |
-| `actual_amount` | float | Actual USDT amount paid |
-| `token` | string | Cryptocurrency type |
-| `network` | string | Blockchain network |
+| `actual_amount` | float | Actual token amount received |
+| `receive_address` | string | Payment address |
+| `token` | string | Token symbol |
+| `block_transaction_id` | string | On-chain transaction ID |
 | `status` | int | Order status (`2` = paid) |
 | `signature` | string | MD5 signature for verification |
 
+Current callback payload does **not** include `network`.
+
 ### Verifying the Callback Signature
 
-Always verify the `signature` in the callback to ensure it came from your Epusdt server:
+Use the same signing rules as the create-order request:
 
-1. Extract all callback fields with **non-empty values**, except `signature`
-2. Sort them alphabetically by key
-3. Build the `key=value&key=value` string
-4. Append your `api_auth_token` directly to the end of the string
-5. Compute the lowercase **MD5** and compare it with the received `signature`
-
-Use the same [signature generation](#signature-generation) logic shown above.
+1. Keep all non-empty fields except `signature`
+2. Sort by key
+3. Join as `key=value&key=value`
+4. Append `api_auth_token`
+5. Compute lowercase MD5 and compare
 
 ### Responding to the Callback
 
 ::: danger Important
-Your server **must** return the exact plain-text response `ok` (HTTP 200) to acknowledge the callback.
+Your server **must** return the exact plain-text body `ok` with **HTTP 200**.
 
-If Epusdt does not receive `ok`, it will **retry the callback** until either:
-- Your server responds with `ok`, or
-- The `callback_timeout` configured in your `.env` is exceeded
-:::
+Current retry behavior is configuration-driven, not a fixed hardcoded retry count:
 
-**Example callback handler:**
+- `order_notice_max_retry` — maximum retry count after the first attempt
+- `callback_retry_base_seconds` — exponential backoff base delay
 
-::: code-group
+Default `.env.example` values are:
 
-```python [Python / Flask]
-from flask import Flask, request
-import hashlib
+- `order_notice_max_retry=0`
+- `callback_retry_base_seconds=5`
 
-app = Flask(__name__)
-
-def epusdt_sign(params: dict, token: str) -> str:
-    filtered = {k: v for k, v in params.items() if v != '' and v is not None and k != 'signature'}
-    sorted_str = '&'.join(f"{k}={v}" for k, v in sorted(filtered.items()))
-    return hashlib.md5((sorted_str + token).encode()).hexdigest()
-
-@app.route("/callback", methods=["POST"])
-def payment_callback():
-    data = request.json
-
-    # 1. Verify signature
-    expected_sig = epusdt_sign(data, "your_api_auth_token")
-    if data.get("signature") != expected_sig:
-        return "signature mismatch", 400
-
-    # 2. Check status
-    if data.get("status") == 2:
-        order_id = data["order_id"]
-        # Mark order as paid in your database
-        mark_order_paid(order_id)
-
-    # 3. Return "ok" — this is mandatory
-    return "ok"
-```
-
-```javascript [Node.js / Express]
-const express = require("express");
-const crypto = require("crypto");
-const app = express();
-app.use(express.json());
-
-function epusdtSign(params, token) {
-  const filtered = Object.entries(params)
-    .filter(([key, value]) => key !== "signature" && value !== "" && value !== null)
-    .sort(([a], [b]) => a.localeCompare(b));
-
-  const sortedStr = filtered
-    .map(([key, value]) => `${key}=${value}`)
-    .join("&");
-
-  return crypto
-    .createHash("md5")
-    .update(sortedStr + token)
-    .digest("hex");
-}
-
-app.post("/callback", (req, res) => {
-  const data = req.body;
-
-  // 1. Verify signature
-  const expectedSig = epusdtSign(data, "your_api_auth_token");
-  if (data.signature !== expectedSig) {
-    return res.status(400).send("signature mismatch");
-  }
-
-  // 2. Check status
-  if (data.status === 2) {
-    const orderId = data.order_id;
-    // Mark order as paid in your database
-    markOrderPaid(orderId);
-  }
-
-  // 3. Return "ok" — this is mandatory
-  res.send("ok");
-});
-```
-
-```php [PHP]
-<?php
-$data = json_decode(file_get_contents('php://input'), true);
-
-function epusdtSign(array $parameter, string $signKey): string {
-    ksort($parameter);
-    reset($parameter);
-    $sign = '';
-    foreach ($parameter as $key => $val) {
-        if ($val === '' || $val === null) continue;
-        if ($key === 'signature') continue;
-        if ($sign !== '') $sign .= '&';
-        $sign .= "$key=$val";
-    }
-    return md5($sign . $signKey);
-}
-
-// 1. Verify signature
-$expectedSig = epusdtSign($data, 'your_api_auth_token');
-if ($data['signature'] !== $expectedSig) {
-    http_response_code(400);
-    echo 'signature mismatch';
-    exit;
-}
-
-// 2. Check status
-if ($data['status'] == 2) {
-    $orderId = $data['order_id'];
-    // Mark order as paid in your database
-    markOrderPaid($orderId);
-}
-
-// 3. Return "ok" — this is mandatory
-echo 'ok';
-```
-
+So with default settings, Epusdt performs the first callback attempt, but no extra retries after a failure.
 :::
 
 ## Full Integration Example
-
-Here is a complete example in Python showing the entire flow:
 
 ```python
 import hashlib
 import requests
 
 API_BASE = "https://pay.example.com"
-API_TOKEN = "your_api_token"
 API_AUTH_TOKEN = "your_api_auth_token"
 
 def epusdt_sign(params: dict, token: str) -> str:
@@ -447,22 +335,20 @@ def create_order(order_id: str, amount: float, notify_url: str):
     response = requests.post(
         f"{API_BASE}/payments/epusdt/v1/order/create-transaction",
         json=params,
-        headers={"Authorization": f"Bearer {API_TOKEN}"},
     )
     result = response.json()
 
-    if result["status"] == 1:
+    if result["status_code"] == 200:
         data = result["data"]
         print(f"Trade ID:     {data['trade_id']}")
         print(f"USDT Amount:  {data['actual_amount']}")
         print(f"Address:      {data['receive_address']}")
-        print(f"Checkout URL: {data['checkout_url']}")
+        print(f"Payment URL:  {data['payment_url']}")
         return data
     else:
         print(f"Error: {result['message']}")
         return None
 
-# Create an order
 create_order("ORDER_001", 100.00, "https://example.com/callback")
 ```
 
@@ -470,9 +356,10 @@ create_order("ORDER_001", 100.00, "https://example.com/callback")
 
 | Status Code | Message | How to Fix |
 |-------------|---------|------------|
-| `400` | `invalid params` | Check required fields and data types |
-| `401` | `unauthorized` | Verify your API token |
-| `10003` | `duplicate order` | Use a unique `order_id` |
-| `10004` | `amount out of range` | Check amount limits in your config |
-| `10005` | `no available address` | Add more wallet addresses |
-| `10008` | `signature failed` | Verify your signature logic and secret key |
+| `400` | system / validation error | Check request body and required fields |
+| `401` | `signature verification failed` | Verify your signature logic and `api_auth_token` |
+| `10002` | `order already exists` | Use a unique `order_id` |
+| `10003` | `no available wallet address` | Add more wallet addresses |
+| `10004` | `invalid payment amount` | Check amount limits and minimum value |
+| `10005` | `no available amount channel` | Retry with another amount or review channel allocation |
+| `10008` | `order does not exist` | Verify the queried `trade_id` |

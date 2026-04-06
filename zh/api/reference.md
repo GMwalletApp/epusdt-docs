@@ -1,119 +1,134 @@
 # API 参考
 
-本节介绍 Epusdt 的 HTTP API，帮助你将 USDT 支付能力集成到自己的系统中。
+本节说明当前源码中的 Epusdt HTTP API 基线，便于你按真实实现接入。
 
 ## 基础地址
 
-所有 API 请求都以你部署的 Epusdt 服务地址作为基础 URL：
+所有接口都以你的 Epusdt 部署地址作为基础 URL，例如：
 
-```
+```text
 http://your-server:8000
 ```
 
-生产环境建议通过 Nginx、Caddy 等反向代理启用 HTTPS：
+生产环境建议放到 HTTPS 反向代理之后：
 
-```
+```text
 https://pay.example.com
 ```
 
-## 鉴权方式
+## 鉴权与签名
 
-Epusdt 使用共享 Token 进行 API 鉴权。该 Token 通常在 `.env` 中配置为 `app_token`。
+当前源码的支付创建接口并没有单独实现 Bearer Token、查询参数 Token 或请求体 `token` 鉴权。
 
-你可以通过以下任意一种方式传递 Token：
-
-### 1. Authorization 请求头（推荐）
-
-```http
-Authorization: Bearer YOUR_API_TOKEN
-```
-
-### 2. 查询参数
-
-```
-POST /payments/epusdt/v1/order/create-transaction?token=YOUR_API_TOKEN
-```
-
-### 3. 请求体字段
-
-在 JSON 请求体中加入 `token` 字段。
+实际校验的是请求里的 `signature`，签名密钥来自 `.env` 中的 `api_auth_token`。
 
 ::: warning
-请妥善保管 API Token，不要将其暴露在前端代码、移动端应用或公开仓库中。
+请妥善保管 `api_auth_token`，不要暴露到前端、移动端或公开仓库。
 :::
+
+## 请求签名规则
+
+签名算法为 **MD5**，规则如下：
+
+1. 收集所有非空参数，排除 `signature`
+2. 按 key 的 ASCII 升序排序
+3. 拼接为 `key=value&key=value`
+4. 直接在末尾追加 `api_auth_token`
+5. 计算小写 MD5，结果即为 `signature`
+
+示例：
+
+```text
+amount=42&notify_url=http://example.com/notify&order_id=20220201030210321&redirect_url=http://example.com/redirect
+```
+
+拼接 token：
+
+```text
+amount=42&notify_url=http://example.com/notify&order_id=20220201030210321&redirect_url=http://example.com/redirectepusdt_password_xasddawqe
+```
 
 ## 请求格式
 
-- 所有 POST 请求支持 `application/json` 或 `application/x-www-form-urlencoded`
-- 所有 GET 请求使用标准查询参数
-- 字符编码：UTF-8
+- Method：`POST` 或 `GET`
+- POST 支持 `application/json` 或 `application/x-www-form-urlencoded`
+- 编码：UTF-8
 
 ## 响应格式
 
-所有接口都返回统一结构的 JSON 对象：
-
-### 成功响应
+成功响应统一为：
 
 ```json
 {
-  "status": 1,
-  "message": "ok",
+  "status_code": 200,
+  "message": "success",
   "data": {
-    // 业务数据
-  }
-}
-```
-
-### 错误响应
-
-```json
-{
-  "status": 400,
-  "message": "invalid params",
-  "data": null
+    "trade_id": "202203271648380592218340",
+    "order_id": "9",
+    "amount": 53,
+    "currency": "cny",
+    "actual_amount": 7.9104,
+    "receive_address": "TNEns8t9jbWENbStkQdVQtHMGpbsYsQjZK",
+    "token": "usdt",
+    "expiration_time": 1648381192,
+    "payment_url": "http://example.com/pay/checkout-counter/202203271648380592218340"
+  },
+  "request_id": "b1344d70-ff19-4543-b601-37abfb3b3686"
 }
 ```
 
 ## 状态码说明
 
+当前源码使用顶层 `status_code` 表示接口结果：
+
 | 代码 | 含义 |
 |------|------|
-| `1` | 请求成功 |
-| `400` | 请求错误 / 参数非法 |
-| `401` | 未授权（Token 缺失或无效） |
-| `10001` | 订单不存在 |
-| `10002` | 订单已过期 |
-| `10003` | 订单号重复 |
-| `10004` | 金额超出允许范围 |
-| `10005` | 无可用钱包地址 |
-| `10006` | 不支持的币种 |
-| `10007` | 不支持的网络 |
-| `10008` | 签名校验失败 |
-| `10009` | 订单已支付 |
-| `10010` | 系统繁忙，请稍后重试 |
-
-::: tip
-`status = 1` 表示请求成功，其他值都应视为错误。接入时请同时检查 `message` 字段以获取详细原因。
-:::
+| `200` | 成功 |
+| `400` | 系统错误或请求校验失败 |
+| `401` | 签名校验失败 |
+| `10001` | 钱包地址已存在 |
+| `10002` | 订单已存在 |
+| `10003` | 无可用钱包地址 |
+| `10004` | 支付金额不合法 |
+| `10005` | 无可用金额通道 |
+| `10006` | 汇率计算失败 |
+| `10007` | 区块交易已处理 |
+| `10008` | 订单不存在 |
+| `10009` | 请求参数解析失败 |
+| `10010` | 订单状态已变化 |
 
 ## 接口列表
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/payments/epusdt/v1/order/create-transaction` | [创建支付订单](/zh/api/payment) |
-| `GET` | `/pay/checkout-counter/:trade_id` | 跳转到支付收银台 |
-| `GET` | `/pay/check-status/:trade_id` | 查询订单支付状态 |
+| Method | Endpoint | 说明 |
+|--------|----------|------|
+| `POST` | `/payments/epusdt/v1/order/create-transaction` | 创建支付订单；缺省时会补 `token=usdt`、`currency=cny`、`network=TRON` |
+| `POST` | `/payments/gmpay/v1/order/create-transaction` | 创建支付订单；不做旧兼容默认值补充 |
+| `GET` | `/pay/checkout-counter/:trade_id` | 托管收银台页面 |
+| `GET` | `/pay/check-status/:trade_id` | 收银台轮询状态接口 |
+
+::: tip
+当前真实 API 前缀是 `/payments/...`。旧文档中的 `/api/v1/order/create-transaction` 仅可视为历史路径说明，不应再当作当前可用接口。
+:::
+
+## 路由前缀说明
+
+需要区分三类路径：
+
+- `/payments/...`：真实 API 创建订单路由
+- `/pay/...`：收银台与状态轮询页面路由
+- `app_uri`：仅用于拼接返回的绝对地址，例如 `payment_url`
+
+`app_uri` 不是服务内部统一挂载前缀。
 
 ## 安全建议
 
-- 生产环境务必使用 **HTTPS** 并配置有效证书
-- API Token 只保存在服务端，不要暴露给前端
-- 在你的业务系统中校验回调签名
-- 合理设置 `order_expiration_time` 与 `callback_timeout`
-- 限制管理后台和 `.env` 文件的访问权限
-- 如条件允许，可对回调地址增加 IP 白名单保护
+- `api_auth_token` 只保存在服务端
+- 生产环境务必启用 HTTPS
+- 支付成功后先验签，再更新业务订单
+- 回调成功条件应按 **HTTP 200 + 响应体精确等于 `ok`** 处理
+- 限制 `.env` 与后台管理入口访问权限
+- 为 TRC20 监听准备稳定的 `tron_grid_api_key`
 
 ## 下一步
 
-- [支付接口](/zh/api/payment) — 完整接入流程与示例代码
-- [旧版接口](/zh/api/legacy) — 废弃接口说明与迁移指南
+- [支付接口](/zh/api/payment) — 创建订单、回调、状态查询与完整示例
