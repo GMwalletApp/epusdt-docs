@@ -9,8 +9,11 @@
 - 使用 `gmwallet/epusdt:alpine`
 - 把宿主机上的 `env` 文件挂载到容器内 `/app/.env`
 - 对外暴露容器的 `8000` 端口
+- 同时包含本地 `build:` 配置，因为源码仓库根目录本身就有官方 `Dockerfile`
 
 应用默认读取 `.env` 配置文件。Docker 场景下，官方文档采用的是“宿主机文件名叫 `env`，挂载后在容器内变成 `/app/.env`”的方式。
+
+如果你是在一个全新的空目录里部署，最稳妥的做法是直接使用已发布镜像，并且**去掉** `build:` 配置；只有在你已经把官方源码仓库（含根目录 `Dockerfile`）检出到本地时，才需要保留它。
 
 ## 前置条件
 
@@ -116,14 +119,19 @@ services:
   epusdt:
     image: gmwallet/epusdt:alpine
     restart: always
-    build:
-      context: .
-      dockerfile: Dockerfile
     volumes:
       - ./env:/app/.env
     ports:
       - "8000:8000"
 EOF
+```
+
+如果你是在已经检出的官方源码目录里运行，并且目录中本来就有根 `Dockerfile`，也可以按官方示例把下面这段加回去：
+
+```yaml
+    build:
+      context: .
+      dockerfile: Dockerfile
 ```
 
 ## 第四步：启动服务
@@ -143,6 +151,8 @@ docker compose ps
 ```shell
 docker compose logs -f epusdt
 ```
+
+如果 Compose 报错提示找不到 `Dockerfile`，通常就是把源码仓库里的示例原样抄到了空目录里。此时要么删掉 `build:` 配置，要么把官方 `Dockerfile` 放到当前目录。
 
 ## 端口暴露与反向代理
 

@@ -9,8 +9,11 @@ The source repository includes an official `docker-compose.yaml` example that:
 - runs `gmwallet/epusdt:alpine`
 - mounts a local `env` file to `/app/.env`
 - publishes container port `8000`
+- also includes a local `build:` section because the source repository itself contains a root `Dockerfile`
 
 The application reads configuration from `.env` by default. In Docker, the documented pattern is to keep a host file named `env` and mount it as `/app/.env` inside the container.
+
+For a fresh deployment in an empty directory, the safest approach is to use the published image directly and **omit** the `build:` block unless you also copied or checked out the source repository with its `Dockerfile`.
 
 ## Prerequisites
 
@@ -118,14 +121,19 @@ services:
   epusdt:
     image: gmwallet/epusdt:alpine
     restart: always
-    build:
-      context: .
-      dockerfile: Dockerfile
     volumes:
       - ./env:/app/.env
     ports:
       - "8000:8000"
 EOF
+```
+
+If you are running from a checked-out source tree that already includes the official root `Dockerfile`, you may optionally add the original build block back:
+
+```yaml
+    build:
+      context: .
+      dockerfile: Dockerfile
 ```
 
 ## Step 4: Start the service
@@ -145,6 +153,8 @@ Check logs:
 ```shell
 docker compose logs -f epusdt
 ```
+
+If Compose reports that `Dockerfile` cannot be found, that usually means you copied the source repo example too literally into an empty directory. Remove the `build:` block, or place the official `Dockerfile` in the same directory.
 
 ## Port exposure and reverse proxy
 
