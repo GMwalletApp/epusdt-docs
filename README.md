@@ -6,7 +6,6 @@
 
 <p align="center">
   <a href="https://www.gnu.org/licenses/gpl-3.0.html"><img src="https://img.shields.io/badge/license-GPLV3-blue" alt="License"></a>
-  <a href="https://golang.org"><img src="https://img.shields.io/badge/Golang-1.16+-red" alt="Go"></a>
   <a href="https://t.me/epusdt"><img src="https://img.shields.io/badge/Telegram-Channel-blue" alt="Telegram"></a>
 </p>
 
@@ -14,35 +13,30 @@
 
 ---
 
-**Epusdt** (Easy Payment USDT) is a private USDT payment middleware written in Go, supporting the TRC20 network.
+This repository contains the VitePress documentation site for **Epusdt**.
 
-Deploy on your own server — no extra fees, no wallet tampering risk.
+**Epusdt** is a self-hosted USDT payment middleware for TRON-based checkout flows. It exposes create-order APIs, returns hosted checkout URLs, and notifies merchant systems with asynchronous callbacks after successful payment.
 
-## Quick Start
+## Documentation site
 
-- 📖 [Documentation](https://epusdt-docs.gmwallet.app)
-- 🐙 [GitHub](https://github.com/GMwalletApp/epusdt)
-- 💬 [Telegram Channel](https://t.me/epusdt)
-- 👥 [Telegram Group](https://t.me/epusdt_group)
+- 📖 Docs: https://epusdt-docs.gmwallet.app
+- 🐙 Source project: https://github.com/GMwalletApp/epusdt
+- 💬 Telegram Channel: https://t.me/epusdt
+- 👥 Telegram Group: https://t.me/epusdt_group
 
-## Features
+## Product summary
 
-- Private deployment — no third-party custody
-- Multi-wallet address polling for high concurrency
-- Async queue for elegant, high-performance processing
-- HTTP API for easy integration
-- Telegram bot for notifications
-- Cross-platform: x86 / ARM, Windows / Linux
+- Self-hosted deployment on your own server
+- Hosted checkout page at `/pay/checkout-counter/{trade_id}`
+- Create-order APIs under `/payments/...`
+- Multi-wallet polling for higher order concurrency
+- Optional Telegram bot notifications / management flows
+- Docker deployment example, plus source-build flexibility
 
-## Development
+## Local development
 
 ```bash
-# Install dependencies
 bun install
-
-# Start dev server
 bun run docs:dev
-
-# Build
 bun run docs:build
 ```

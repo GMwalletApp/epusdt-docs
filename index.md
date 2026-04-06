@@ -1,12 +1,12 @@
 ---
 layout: home
-title: Epusdt — Private USDT TRC20 Payment Middleware
-description: Epusdt (bepusdt / tokenpay / gmpay) is a self-hosted GMwallet USDT TRC20 payment gateway. No fees, no third-party custody. Deploy with Docker and integrate via HTTP API.
+title: Epusdt — Self-Hosted USDT Payment Middleware for TRON
+description: Epusdt is a self-hosted USDT payment middleware from GMwallet. Run it on your own server, generate hosted checkout links, and integrate orders through HTTP APIs.
 
 hero:
   name: "Epusdt"
   text: "Easy Payment USDT"
-  tagline: A private, self-hosted USDT payment middleware on TRC20 network — integrate crypto payments into any system via HTTP API.
+  tagline: Self-hosted USDT payment middleware for TRON-based checkout flows, with hosted payment pages, API integration, and merchant callbacks.
   image:
     src: /logo.png
     alt: Epusdt
@@ -23,21 +23,21 @@ hero:
 
 features:
   - icon: 🔒
-    title: Private Deployment
-    details: Self-hosted solution — no risk of wallet tampering or missed orders. USDT goes directly to your wallet with zero extra fees.
-  - icon: 🚀
-    title: High Performance
-    details: Written in Go, supports cross-platform (x86/ARM, Windows/Linux/macOS). Async queue processing with multi-wallet polling.
-  - icon: 🤖
-    title: Telegram Bot
-    details: Integrated Telegram bot for convenient wallet management and instant payment notifications.
-  - icon: 🔌
-    title: Easy Integration
-    details: Standard HTTP API — integrate into any system with minimal configuration. Plugins available for Dujiaoka and more.
+    title: Self-Hosted
+    details: Run Epusdt on your own server and wallet infrastructure. Funds go directly to your configured receiving addresses.
+  - icon: 💸
+    title: Hosted Checkout
+    details: Create orders through the API and return a checkout URL for users to complete payment on Epusdt-hosted pages.
   - icon: 🔄
-    title: Multi-Wallet Polling
-    details: Support multiple wallet addresses for higher order concurrency and throughput.
-  - icon: 🖥️
-    title: Cross-Platform
-    details: Single compiled binary — deploy on x86 or ARM, Windows, Linux or macOS. Docker images available for instant setup.
+    title: Multi-Wallet Routing
+    details: Rotate across multiple receiving addresses and reserve unique amounts to reduce order collisions under load.
+  - icon: ⚙️
+    title: HTTP API + Callbacks
+    details: Integrate with your store, panel, or custom app using create-order APIs and asynchronous payment notifications.
+  - icon: 🤖
+    title: Telegram Notifications
+    details: Optional Telegram bot support helps with payment notices and basic wallet management workflows.
+  - icon: 🐳
+    title: Flexible Deployment
+    details: Start quickly with Docker, or build from source for Linux, macOS, Windows, x86, or ARM environments.
 ---

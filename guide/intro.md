@@ -1,67 +1,64 @@
 # Introduction
 
-**Epusdt** (Easy Payment USDT) is a private, self-hosted USDT payment middleware written in **Go**, operating on the **TRC20 network**.
+**Epusdt** (Easy Payment USDT) is a self-hosted payment middleware for **USDT checkout flows on TRON**.
 
-Site operators and developers can integrate USDT payment functionality into any system via the HTTP API provided by Epusdt — with minimal configuration and lightweight dependencies.
+It is designed for developers, merchants, and operators who want to run their own payment service, create orders through HTTP APIs, host a checkout page on their own domain, and receive asynchronous payment callbacks without relying on a custodial third-party gateway.
 
-> Epusdt is open source and licensed under the [GPLv3 License](https://www.gnu.org/licenses/gpl-3.0.html).
+> Epusdt is open source under the [GPLv3 License](https://www.gnu.org/licenses/gpl-3.0.html).
 
-## Key Features
+## What Epusdt does
 
-- ✅ **Private deployment** — no wallet tampering risk, no order skimming; USDT goes directly to your wallet
-- ✅ **Cross-platform** — Go binary supports x86/ARM, Windows/Linux
-- ✅ **Multi-wallet polling** — improves concurrent order throughput
-- ✅ **Async queue** — elegant, high-performance order processing
-- ✅ **Zero extra dependencies** — just one compiled binary
-- ✅ **HTTP API** — integrate into any system
-- ✅ **Telegram bot** — wallet management and payment notifications
-- ✅ **Built-in admin panel** — web UI for monitoring orders and wallets
+A typical payment flow looks like this:
 
-## How It Works
+1. Your system calls the create-order API.
+2. Epusdt allocates a receiving address and payable amount.
+3. The API returns a `payment_url` for the hosted checkout page.
+4. The customer pays on-chain.
+5. Epusdt detects the matching transfer and marks the order as paid.
+6. Epusdt sends an asynchronous callback to your merchant system.
 
-Epusdt monitors the TRC20 network (via TronGrid API) for incoming USDT transactions. It uses **amount uniqueness** and **time windows** to match payments to orders:
+## Core capabilities
 
-```
-1. Customer needs to pay 20.05 USDT
-2. Server checks if address_1: 20.05 is already locked
-3. If free → return that wallet + amount to customer (locked for 10 min)
-4. If occupied → increment by 0.0001 and retry (up to 100 times)
-5. Background thread watches for incoming USDT matching pending amounts
-6. Match found → order marked as paid → async callback triggered
-```
+- **Self-hosted service** — deploy on your own server and keep payment infrastructure under your control.
+- **Hosted checkout page** — built-in `/pay/checkout-counter/{trade_id}` page for end-user payment.
+- **HTTP create-order APIs** — current routes live under `/payments/...`, including `/payments/epusdt/v1/order/create-transaction`.
+- **Multi-wallet polling** — supports multiple receiving addresses to improve concurrency.
+- **Asynchronous callbacks** — notifies your business system after successful payment.
+- **Telegram bot support** — optional notification and management workflow integration.
+- **Flexible deployment** — Docker-first, with source builds also possible.
 
-## Project Structure
+## Current scope and limitations
 
-```
-epusdt/
-├── plugins/    # Integrated plugins (e.g. dujiaoka)
-├── src/        # Core source code
-├── sdk/        # Integration SDKs
-├── sql/        # SQL schema files
-└── wiki/       # Documentation
-```
+The current source code is intentionally focused:
 
-## System Requirements
+- **Primary payment scenario:** USDT on **TRON / TRC20**
+- **Hosted routes:** root-relative paths such as `/payments/...` and `/pay/...`
+- **Public base URL:** `app_uri` is used to generate absolute checkout links; it is **not** an internal route prefix
+- **Subpath deployments:** if you want `/epusdt`-style URLs, handle that in a reverse proxy and test carefully
 
-| Component | Requirement |
-|-----------|-------------|
-| OS | Linux (recommended), Windows, macOS |
-| Architecture | x86_64 or ARM |
-| Database | SQLite (default), MySQL, or PostgreSQL |
-| Network | Outbound HTTPS access to TronGrid API |
-| Domain | Required for the payment checkout page |
-| Telegram Bot | Recommended for management & notifications |
+## Supported runtime facts
 
-## Community
+Based on the current source and deployment examples:
 
-- Telegram Channel: [https://t.me/epusdt](https://t.me/epusdt)
-- Telegram Group: [https://t.me/epusdt_group](https://t.me/epusdt_group)
-- GitHub: [https://github.com/GMwalletApp/epusdt](https://github.com/GMwalletApp/epusdt)
+- **Language/runtime:** Go application
+- **HTTP listen default:** `:8000`
+- **Database options:** `sqlite`, `mysql`, or `postgres`
+- **Recommended external dependency:** TronGrid API access for TRON/TRC20 chain queries
+- **Deployment style:** Docker example is provided; source builds are also supported
 
-## Next Steps
+## Important integration note
 
-- [Installation Overview](/guide/installation/) — choose your deployment method
-- [Docker Deployment](/guide/installation/docker) — fastest way to get started
-- [BaoTa Panel Deployment](/guide/installation/baota)
+Keep these paths separate in your integration:
+
+- **Create order API** → `/payments/...`
+- **Hosted checkout page** → `/pay/checkout-counter/{trade_id}`
+- **Checkout status polling** → `/pay/check-status/{trade_id}`
+
+The API returns a `payment_url`; the service does not redirect your create-order request directly into checkout.
+
+## Next steps
+
+- [Installation Overview](/guide/installation/)
+- [Docker Deployment](/guide/installation/docker)
 - [Manual Deployment](/guide/installation/manual)
 - [API Reference](/api/reference)

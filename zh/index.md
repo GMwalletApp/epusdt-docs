@@ -1,12 +1,12 @@
 ---
 layout: home
-title: Epusdt — 私有化 USDT TRC20 支付中间件
-description: Epusdt（bepusdt / tokenpay / gmpay）— GMwallet是一款自托管的 USDT TRC20 收款网关。无手续费，无第三方托管。支持 Docker 部署，通过 HTTP API 接入任何系统。
+title: Epusdt — 面向 TRON 的自托管 USDT 支付中间件
+description: Epusdt 是 GMwallet 提供的自托管 USDT 支付中间件。你可以部署在自己的服务器上，通过 HTTP API 创建订单，并使用托管收银台页面完成支付流程。
 
 hero:
   name: "Epusdt"
   text: "轻松收取 USDT"
-  tagline: 基于 TRC20 网络的私有化 USDT 支付中间件，通过 HTTP API 将加密货币支付集成到任何系统。
+  tagline: 面向 TRON 支付流程的自托管 USDT 支付中间件，提供收银台页面、HTTP API 接入和商户回调能力。
   image:
     src: /logo.png
     alt: Epusdt
@@ -23,21 +23,21 @@ hero:
 
 features:
   - icon: 🔒
-    title: 私有化部署
-    details: 完全自托管，无需担心钱包被篡改和吞单，USDT 代币直接进入你的钱包，无需额外手续费。
-  - icon: 🚀
-    title: 高性能
-    details: Go 语言编写，跨平台支持（x86/ARM、Windows/Linux/macOS），异步队列处理，多钱包地址轮询。
-  - icon: 🤖
-    title: Telegram 机器人
-    details: 内置 Telegram 机器人接入，便捷管理钱包，支付消息快速通知。
-  - icon: 🔌
-    title: 简单集成
-    details: 标准 HTTP API 接口，最少配置即可接入任何系统，支持独角数卡等主流插件。
+    title: 自托管部署
+    details: 服务运行在你自己的服务器和钱包体系里，资金直接进入你配置的收款地址。
+  - icon: 💸
+    title: 托管收银台
+    details: 通过 API 创建订单后，系统返回收银台链接，用户可在 Epusdt 托管页面完成支付。
   - icon: 🔄
     title: 多钱包轮询
-    details: 支持多钱包地址轮询，提高订单并发率和吞吐量。
-  - icon: 🖥️
-    title: 跨平台支持
-    details: 单个编译好的二进制文件，支持 x86/ARM 架构的 Windows/Linux/macOS 设备。提供 Docker 镜像，开箱即用。
+    details: 可在多个收款地址之间轮换，并结合唯一金额保留机制降低并发冲突。
+  - icon: ⚙️
+    title: HTTP API + 回调
+    details: 适合对接商城、面板、发卡站或自建业务系统，支付完成后可异步通知商户系统。
+  - icon: 🤖
+    title: Telegram 通知
+    details: 支持可选的 Telegram 机器人能力，用于收款通知和基础钱包管理流程。
+  - icon: 🐳
+    title: 灵活部署
+    details: 可直接用 Docker 快速部署，也可从源码构建到 Linux、macOS、Windows、x86 或 ARM 环境。
 ---
