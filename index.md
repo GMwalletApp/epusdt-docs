@@ -1,0 +1,43 @@
+---
+layout: home
+tk:
+  teekHome: false
+
+hero:
+  name: "Epusdt"
+  text: "Self-Hosted USDT Payment"
+  tagline: Easy Payment Usdt — Go-powered TRC20 middleware. Private, zero-fee, instant integration.
+  image:
+    src: /logo.png
+    alt: Epusdt
+  actions:
+    - theme: brand
+      text: Get Started
+      link: /guide/intro
+    - theme: alt
+      text: API Reference
+      link: /api/reference
+    - theme: alt
+      text: GitHub →
+      link: https://github.com/GMwalletApp/epusdt
+
+features:
+  - icon: 🔒
+    title: Private Deployment
+    details: Your server, your wallet, your keys. No risk of fund hijacking or missed orders.
+  - icon: ⚡
+    title: High Performance
+    details: Async queue + multi-wallet polling handles high-concurrency orders gracefully.
+  - icon: 🤖
+    title: Telegram Bot
+    details: Receive instant payment notifications and manage wallets via Telegram.
+  - icon: 🔌
+    title: Simple HTTP API
+    details: REST API for creating transactions and receiving async payment callbacks.
+  - icon: 🌐
+    title: Cross-Platform
+    details: Single Go binary — x86 and ARM, Windows and Linux.
+  - icon: 🧩
+    title: Plugin Support
+    details: Dujiaoka plugin included. Open SDK for custom integrations.
+---

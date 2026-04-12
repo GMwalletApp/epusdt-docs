@@ -1,0 +1,8 @@
+name = "epusdt-docs"
+compatibility_date = "2026-04-12"
+
+[assets]
+directory = ".vitepress/dist"
+
+[build]
+command = "bun install && bun run docs:build"
