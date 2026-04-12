@@ -2,6 +2,11 @@ import { defineConfig } from "vitepress";
 import { defineTeekConfig } from "vitepress-theme-teek/config";
 
 const teekConfig = defineTeekConfig({
+  themeEnhance: {
+    themeColor: {
+      defaultColorName: "vp-green",
+    },
+  },
   article: { author: "Epusdt" },
   footer: { copyright: "Copyright © 2025 GMwallet" },
   toComment: {
