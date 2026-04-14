@@ -52,6 +52,14 @@ export default defineConfig({
               ],
             },
             {
+              text: "Integration",
+              items: [
+                { text: "Epusdt (Legacy)", link: "/guide/integration/epusdt" },
+                { text: "GMPay (Recommended)", link: "/guide/integration/gmpay" },
+                { text: "EPay (Redirect)", link: "/guide/integration/epay" },
+              ],
+            },
+            {
               text: "Plugins",
               items: [{ text: "Dujiaoka", link: "/guide/plugins/dujiaoka" }],
             },
@@ -96,6 +104,14 @@ export default defineConfig({
                 { text: "Docker 部署（推荐）", link: "/zh/guide/installation/docker" },
                 { text: "aaPanel 部署", link: "/zh/guide/installation/aapanel" },
                 { text: "手动部署", link: "/zh/guide/installation/manual" },
+              ],
+            },
+            {
+              text: "接入教程",
+              items: [
+                { text: "Epusdt 接入（旧版兼容）", link: "/zh/guide/integration/epusdt" },
+                { text: "GMPay 接入（推荐）", link: "/zh/guide/integration/gmpay" },
+                { text: "EPay 接入（跳转式）", link: "/zh/guide/integration/epay" },
               ],
             },
             {
