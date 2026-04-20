@@ -78,8 +78,8 @@ forced_usdt_rate=
 # ⚠️ 推荐填写：汇率接口 URL（动态获取汇率）
 api_rate_url=https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/
 
-# 推荐填写：TRON Grid API Key（提高 API 稳定性）
 tron_grid_api_key=
+# 选填，可在 https://www.trongrid.io/ 申请 API Key，提高 TRON 网络请求稳定性
 EOF
 ```
 

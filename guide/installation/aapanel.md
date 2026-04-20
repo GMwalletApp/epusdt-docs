@@ -73,6 +73,7 @@ order_notice_max_retry=0
 forced_usdt_rate=
 api_rate_url=
 tron_grid_api_key=
+# Optional. Apply for an API key at https://www.trongrid.io/ to improve TRON request stability
 solana_rpc_url=
 ethereum_ws_url=wss://ethereum.publicnode.com
 epay_pid=

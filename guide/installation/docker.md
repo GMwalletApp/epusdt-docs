@@ -78,8 +78,8 @@ forced_usdt_rate=
 # ⚠️ Recommended: exchange rate API URL
 api_rate_url=https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/
 
-# Recommended: TRON Grid API Key (improves stability)
 tron_grid_api_key=
+# Optional. Apply for an API key at https://www.trongrid.io/ to improve TRON request stability
 
 # Solana / Ethereum monitoring
 solana_rpc_url=

@@ -72,6 +72,7 @@ order_notice_max_retry=0
 forced_usdt_rate=
 api_rate_url=
 tron_grid_api_key=
+# 选填，可在 https://www.trongrid.io/ 申请 API Key，提高 TRON 网络请求稳定性
 ```
 
 如果使用 MySQL：
