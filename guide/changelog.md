@@ -8,6 +8,61 @@ This page summarizes published Epusdt releases using the repository's actual Git
 - Supplementary source: tag compare diffs and merged commit messages
 - This page avoids inventing features that are not visible in release or code history
 
+## v0.0.8
+
+- Release tag: `v0.0.8`
+- Published at: `2026-04-15T10:44:56Z`
+- Official release note: `- Enable polygon,plasma supports`
+
+### User-visible changes
+
+- Added `polygon` and `plasma` network support
+- Payment page network selection behavior was adjusted
+- EVM wallet address storage logic was corrected
+
+### Deployment and configuration changes
+
+- No new environment variables were visible in the release note or compare diff
+
+### API changes
+
+- No new public API route was clearly introduced in the official release note
+- Supported-network related behavior continues from the `v0.0.7` workstream
+
+### Evidence used
+
+- GitHub release `v0.0.8`
+- Compare diff `v0.0.7...v0.0.8`
+- Commits including `f7c5f67`, `097c716`
+
+## v0.0.7
+
+- Release tag: `v0.0.7`
+- Published at: `2026-04-15T06:00:55Z`
+- Official release note: `suport bsc, plasma, polygon......` + `support epay submit form params` + `Dev payment`
+
+### User-visible changes
+
+- Added support for `bsc`, `polygon`, and `plasma`
+- EPay-compatible submit-form parameters were added for broader integration compatibility
+- Telegram interaction and payment-related handling were updated in the payment workstream
+
+### Deployment and configuration changes
+
+- New supported-network work added multiple EVM listening paths in source history
+- No clearly documented new `.env` variable was published in the official release note body
+
+### API changes
+
+- Added supported-chain / supported-asset related API work in source history
+- Router logic was updated to support both `GET` and `POST` forms for EPay-compatible submission flow
+
+### Evidence used
+
+- GitHub release `v0.0.7`
+- Compare diff `v0.0.6...v0.0.7`
+- Commits including `9c003fb`, `8cd816c`, `786c5e8`, `70f8ed4`
+
 ## v0.0.6
 
 - Release tag: `v0.0.6`
