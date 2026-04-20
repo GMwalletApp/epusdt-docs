@@ -40,6 +40,7 @@ export default defineConfig({
               text: "Guide",
               items: [
                 { text: "Introduction", link: "/guide/intro" },
+                { text: "Video Tutorial", link: "/guide/tutorial" },
                 { text: "Release Notes", link: "/guide/changelog" },
                 { text: "FAQ", link: "/guide/faq" },
               ],
@@ -96,6 +97,7 @@ export default defineConfig({
               text: "指南",
               items: [
                 { text: "项目简介", link: "/zh/guide/intro" },
+                { text: "视频教程", link: "/zh/guide/tutorial" },
                 { text: "版本日志", link: "/zh/guide/changelog" },
                 { text: "常见问题", link: "/zh/guide/faq" },
               ],
