@@ -1,0 +1,84 @@
+# 常见问题
+
+这里整理了 Epusdt 在部署和接入过程中经常遇到的一些问题。
+
+如果这里没有覆盖你的问题，欢迎去 GitHub 提交 Issue：
+
+- GitHub Issues：[https://github.com/GMWalletApp/epusdt/issues](https://github.com/GMWalletApp/epusdt/issues)
+
+提问时建议尽量附上部署方式、使用网络、报错信息、日志内容和复现步骤，这样会更容易排查。
+
+## 应该选哪种部署方式？
+
+大多数情况下，建议优先使用 **Docker 部署**，最容易复现、升级和迁移。
+
+如果你本来就在用 aaPanel 管理站点，可以选择 **aaPanel 部署**。
+
+如果你希望自己完全控制二进制、进程守护和反向代理，可以选择 **手动部署**。
+
+## `tron_grid_api_key` 是必填吗？
+
+不是，它是 **选填**。
+
+如果你主要使用 TRON 网络，建议配置 TRON Grid API Key，这样通常可以提高请求稳定性。
+
+申请地址：
+
+- [https://www.trongrid.io/](https://www.trongrid.io/)
+
+## 为什么回调收不到？
+
+常见原因包括：
+
+- 回调地址没有公网可访问性
+- 你的服务器被防火墙或反向代理规则拦截
+- 业务服务器没有返回预期的成功响应
+- 回调接口响应太慢，或者返回了 4xx / 5xx
+
+建议同时检查 Epusdt 日志和你的业务系统日志。
+
+## 回调成功后应该返回什么？
+
+按照当前 Epusdt 的实现，业务回调接口在成功处理后应返回：
+
+```text
+ok
+```
+
+如果没有返回 `ok`，Epusdt 可能会认为回调失败并继续重试。
+
+## 为什么订单创建成功了，但支付一直匹配不上？
+
+建议优先检查这些项目：
+
+- 传入的 `network` 和 `token` 是否正确
+- 被监听的钱包地址是否已启用
+- 实际转账金额是否和锁定订单金额一致
+- 链上监听配置是否可用、是否健康
+- 服务器时间和运行环境是否正常
+
+如果你使用的是 Solana 或 Ethereum，也要确认相关 RPC 或 WS 配置可用。
+
+## 可以挂在 Nginx 后面或通过 HTTPS 部署吗？
+
+可以。
+
+生产环境建议把 Epusdt 放在 **Nginx** 或其他反向代理之后，并通过 **HTTPS** 对外提供服务。
+
+同时确保你的公网访问域名和配置里的 `app_uri` 保持一致。
+
+## Epusdt、GMPay、EPay 三种接口该用哪个？
+
+如果你要使用当前推荐的原生多网络接入方式，优先使用 **GMPay**。
+
+如果你需要兼容旧版接入方式或历史插件，使用 **Epusdt** 路由。
+
+如果你需要类似 EPay 的跳转式收银台流程，使用 **EPay** 路由。
+
+## 遇到问题去哪里反馈？
+
+如果你发现文档问题、部署问题、接入 Bug，或者有功能建议，都可以去 GitHub 提交 Issue：
+
+- GitHub Issues：[https://github.com/GMWalletApp/epusdt/issues](https://github.com/GMWalletApp/epusdt/issues)
+
+提交前建议先搜索一下现有 Issue，看看是否已有相同问题。
