@@ -2,6 +2,38 @@
 
 本文基于 `GMwalletApp/epusdt` 仓库中实际存在的 GitHub Releases、Tag、Release Note 和代码差异整理，不凭空编写未发布特性。
 
+## v0.9.0
+
+- 发布标签：`v0.9.0`
+- 发布时间：`2026-04-21T20:23:33Z`
+- 官方发布说明：`Full Changelog: https://github.com/GMWalletApp/epusdt/compare/v0.0.8...v0.9.0`
+
+### 用户可见变更
+
+- 新增完整管理后台，可管理 API Key、链、链上代币、钱包、订单、RPC 节点、系统设置、通知渠道与统计面板
+- 多链能力进一步扩展，包含更完整的 EVM 监听支持，以及后台侧的链/代币管理流程
+- 新增 Telegram 通知渠道，并补上与系统设置联动同步的更新
+- 新增首装初始化流程，便于首次部署
+
+### 部署与配置变更
+
+- `.env.example` 将安装标记默认值改为启用，以配合首次安装流程
+- 运行时新增 RPC 节点健康检查与自动切换能力
+- 服务端运行包加入了构建后的后台静态资源
+- 数据层新增 admin_user、api_key、chain、chain_token、rpc_node、settings、notification_channel 等模型
+
+### 接口变更
+
+- 新增完整的管理后台 REST API，覆盖认证、API Key、链、链代币、钱包、订单、RPC 节点、设置、统计面板与通知渠道
+- 新增基于 JWT 的后台认证与 API Key 鉴权中间件
+- 支付、supported-asset、钱包、订单等请求/响应结构也随后台能力一并扩展
+
+### 依据
+
+- GitHub Release `v0.9.0`
+- 对比差异 `v0.0.8...v0.9.0`
+- 提交 `6bb47d4`、`5edc9dc`、`b499bc0`、`6ea5637`、`9163943`
+
 ## v0.0.8
 
 - 发布标签：`v0.0.8`

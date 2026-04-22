@@ -8,6 +8,38 @@ This page summarizes published Epusdt releases using the repository's actual Git
 - Supplementary source: tag compare diffs and merged commit messages
 - This page avoids inventing features that are not visible in release or code history
 
+## v0.9.0
+
+- Release tag: `v0.9.0`
+- Published at: `2026-04-21T20:23:33Z`
+- Official release note: `Full Changelog: https://github.com/GMWalletApp/epusdt/compare/v0.0.8...v0.9.0`
+
+### User-visible changes
+
+- Added a full admin panel for managing API keys, chains, chain tokens, wallets, orders, RPC nodes, settings, notifications, and dashboard statistics
+- Multi-chain support was expanded further, including broader EVM listener coverage and admin-facing chain/token management flows
+- Telegram notification channels were added and later synchronized with settings updates
+- First-run installation flow was introduced to simplify initial setup
+
+### Deployment and configuration changes
+
+- `.env.example` changed the install flag default to enabled for first-run setup flow
+- The runtime now includes RPC node health checks with automatic failover support
+- Built admin static assets were added to the server runtime
+- New persistence models were introduced for admin users, API keys, chains, chain tokens, RPC nodes, settings, and notification channels
+
+### API changes
+
+- Added a full admin REST API surface covering auth, API keys, chains, chain tokens, wallets, orders, RPC nodes, settings, dashboard statistics, and notifications
+- Added JWT-based admin authentication and API-key authentication middleware
+- Payment, supported-asset, wallet, and order-related response/request structures were expanded alongside the admin workstream
+
+### Evidence used
+
+- GitHub release `v0.9.0`
+- Compare diff `v0.0.8...v0.9.0`
+- Commits including `6bb47d4`, `5edc9dc`, `b499bc0`, `6ea5637`, `9163943`
+
 ## v0.0.8
 
 - Release tag: `v0.0.8`
