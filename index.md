@@ -18,7 +18,7 @@ hero:
       text: Docker Install
       link: /guide/installation/docker
     - theme: alt
-      text: 中文
+      text: 繁體中文
       link: /zh/
     - theme: alt
       text: GitHub →
