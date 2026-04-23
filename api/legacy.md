@@ -1,29 +1,30 @@
 # API Migration Guide
 
-This document covers the route change and new configuration options introduced in recent Epusdt versions.
+This document covers the route change introduced in older Epusdt versions, and documents supplementary configuration options.
 
 ## Route Change
 
-| Old Route | New Route | Description |
-|-----------|-----------|-------------|
-| `POST /api/v1/order/create-transaction` | `POST /payments/epusdt/v1/order/create-transaction` | Create payment transaction |
+The old route `/api/v1/order/create-transaction` has been **removed**. Use the new routes:
 
-> The old route remains functional (backward compatible), but migrating to the new route is recommended.
+| Integration | New Route |
+|-------------|-----------|
+| GMPay (recommended) | `POST /payments/gmpay/v1/order/create-transaction` |
+| Epusdt (legacy compat) | `POST /payments/epusdt/v1/order/create-transaction` |
+| EPay Compatible | `GET/POST /payments/epay/v1/order/create-transaction/submit.php` |
+
+> ⚠️ The old `/api/v1/order/create-transaction` route is **no longer registered** in current source. Update your integration URL immediately.
 
 ## For Dujiaoka Users
 
-**Only one change needed:** In the Dujiaoka admin panel payment plugin config, update the API URL prefix from `/api` to `/payments/epusdt`.
+**Only one change needed:** In the Dujiaoka admin panel payment plugin config, update the API URL to:
 
 ```
-Old: https://your-domain.com/api/v1/order/create-transaction
-New: https://your-domain.com/payments/epusdt/v1/order/create-transaction
+https://your-domain.com/payments/epusdt/v1/order/create-transaction
 ```
-
-Everything else (secret key, callback URL, etc.) stays the same.
 
 ---
 
-## New Configuration Options
+## Configuration Options
 
 ### `api_rate_url` — Exchange Rate API URL
 
@@ -47,8 +48,6 @@ api_rate_url=https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/cu
 }
 ```
 
-Where `0.1389` means 1 CNY = 0.1389 USDT (≈ 7.2 CNY per USDT). You can self-host a rate API as long as it follows this format.
-
 ---
 
 ### `tron_grid_api_key` — TRON Grid API Key
@@ -65,14 +64,9 @@ tron_grid_api_key=your-api-key-here
 2. Register and log in
 3. Create an API Key in the dashboard
 
-**Why it's recommended:**
-- Higher API call quota — avoids rate limiting on public nodes
-- Better stability for production deployments
-- Enables future support for TRX and other tokens
-
 ---
 
-## Full Config Reference
+## Config Reference
 
 ```bash
 # Order expiry time (minutes)

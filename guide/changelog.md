@@ -12,27 +12,20 @@ This page summarizes published Epusdt releases using the repository's actual Git
 
 - Release tag: `v0.9.1`
 - Published at: `2026-04-22T18:29:39Z`
-- Official release note: `Full Changelog: https://github.com/GMWalletApp/epusdt/compare/v0.9.0...v0.9.1`
 
 ### User-visible changes
 
-- GitHub release `v0.9.1` indicates the Docker image workflow update that enables direct pull usage with `docker pull gmwallet/epusdt:latest`
+- Built-in install wizard: first run without a `.env` file now launches a web-based setup flow instead of failing. Fill in database, API token, and domain in the browser — no manual file editing required.
+- Docker image now supports direct pull with `docker pull gmwallet/epusdt:latest`; no `.env` mount needed for initial deployment.
 
 ### Deployment and configuration changes
 
-- The Docker image workflow now includes `.env` file support, making direct image-based deployment smoother
-- This docs site has been updated to document `gmwallet/epusdt:latest`, while some in-repo Docker examples in `GMwalletApp/epusdt` are still shown as `:alpine` and should be treated separately until the repository examples are updated
+- The install wizard writes `.env` automatically on first submit; subsequent restarts skip the wizard and boot normally.
+- `docker-compose.yaml` volume mount for `.env` is now optional — omit it for a clean wizard-based first run.
 
 ### API changes
 
-- No new public API route was explicitly described in the official release note body
-
-### Evidence used
-
-- GitHub release `v0.9.1`
-- Release compare link `v0.9.0...v0.9.1`
-- Commits including `b625bac`, `bc5bbf7`
-- Repository verification against current `docker-compose.yaml` and `wiki/docker-RUN.md`
+- No new public API route in this release.
 
 ## v0.9.0
 

@@ -1,6 +1,8 @@
 # 手动部署
 
-本文说明如何在普通 Linux 服务器上直接部署 Epusdt，本体服务不依赖文档站、VitePress 或 Cloudflare Pages。
+本文说明如何在普通 Linux 服务器上直接部署 Epusdt。
+
+**首次启动无需手动创建 `.env`。** 若未检测到配置文件，Epusdt 会自动进入内置安装向导，通过浏览器完成所有配置。
 
 ## 前置条件
 
@@ -36,95 +38,21 @@ rm epusdt.tar.gz
 git clone https://github.com/GMwalletApp/epusdt.git
 cd epusdt/src
 go build -o /opt/epusdt/epusdt .
-cp .env.example /opt/epusdt/.env
 ```
 
-如果你使用的是发布包，且包内带有 `.env.example`，同样可以复制成 `.env`。如果没有，就手动创建。
-
-## 2. 创建 `.env`
-
-当前源码支持 `sqlite`、`mysql`、`postgres` 三种数据库方案。
-
-最小 SQLite 示例：
-
-```dotenv
-app_name=epusdt
-app_uri=https://pay.example.com
-log_level=info
-http_access_log=false
-sql_debug=false
-http_listen=:8000
-
-static_path=/static
-runtime_root_path=/runtime
-
-log_save_path=/logs
-log_max_size=32
-log_max_age=7
-max_backups=3
-
-db_type=sqlite
-sqlite_database_filename=
-sqlite_table_prefix=
-
-runtime_sqlite_filename=epusdt-runtime.db
-
-queue_concurrency=10
-queue_poll_interval_ms=1000
-callback_retry_base_seconds=5
-
-tg_bot_token=
-tg_proxy=
-tg_manage=
-
-api_auth_token=请替换为高强度随机密钥
-order_expiration_time=10
-order_notice_max_retry=0
-forced_usdt_rate=
-api_rate_url=
-tron_grid_api_key=
-# 选填，可在 https://www.trongrid.io/ 申请 API Key，提高 TRON 网络请求稳定性
-```
-
-如果你使用 MySQL：
-
-```dotenv
-db_type=mysql
-mysql_host=127.0.0.1
-mysql_port=3306
-mysql_user=your_user
-mysql_passwd=your_password
-mysql_database=epusdt
-mysql_table_prefix=
-mysql_max_idle_conns=10
-mysql_max_open_conns=100
-mysql_max_life_time=6
-```
-
-如果你使用 PostgreSQL：
-
-```dotenv
-db_type=postgres
-postgres_host=127.0.0.1
-postgres_port=5432
-postgres_user=your_user
-postgres_passwd=your_password
-postgres_database=epusdt
-postgres_table_prefix=
-postgres_max_idle_conns=10
-postgres_max_open_conns=100
-postgres_max_life_time=6
-```
-
-> 这里部署的是 Epusdt 支付服务本体，不是 `epusdt-docs` 文档站。
-
-## 3. 先直接启动测试
+## 2. 启动 Epusdt
 
 ```bash
 chmod +x /opt/epusdt/epusdt
 cd /opt/epusdt
 ./epusdt http start
 ```
+
+若无 `.env` 文件，Epusdt 会启动安装向导。用浏览器打开 `http://你的服务器IP:8000`，按提示完成初始配置（数据库、API Token、域名等）。
+
+提交后服务自动重启，即可正常使用。
+
+## 3. 配置 Nginx 反向代理
 
 默认会监听 `:8000`。
 

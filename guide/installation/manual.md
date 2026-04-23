@@ -2,6 +2,8 @@
 
 This guide covers running Epusdt on a normal Linux server without Docker or aaPanel.
 
+**No manual `.env` required for first run.** If no config file is present, Epusdt starts a built-in install wizard — open your browser and follow the steps to complete setup.
+
 ## Prerequisites
 
 - A Go toolchain compatible with the current source repository `src/go.mod` (currently `Go 1.25.0`) if you plan to build from source
@@ -9,9 +11,6 @@ This guide covers running Epusdt on a normal Linux server without Docker or aaPa
 - A Linux server
 - A public domain for the checkout service, such as `pay.example.com`
 - Nginx or another reverse proxy for HTTPS in production
-- A valid `api_auth_token`
-- Optional but recommended: `tron_grid_api_key`
-- Optional if using extra networks: `solana_rpc_url` and `ethereum_ws_url`
 
 ## 1. Prepare the application directory
 
@@ -37,93 +36,9 @@ rm epusdt.tar.gz
 git clone https://github.com/GMwalletApp/epusdt.git
 cd epusdt/src
 go build -o /opt/epusdt/epusdt .
-cp .env.example /opt/epusdt/.env
 ```
 
-If you used the release package and it includes `.env.example`, copy it to `.env`. Otherwise create `.env` manually.
-
-## 2. Create `.env`
-
-Current source supports `sqlite`, `mysql`, and `postgres`.
-
-Minimal SQLite example:
-
-```dotenv
-app_name=epusdt
-app_uri=https://pay.example.com
-log_level=info
-http_access_log=false
-sql_debug=false
-http_listen=:8000
-
-static_path=/static
-runtime_root_path=/runtime
-
-log_save_path=/logs
-log_max_size=32
-log_max_age=7
-max_backups=3
-
-db_type=sqlite
-sqlite_database_filename=
-sqlite_table_prefix=
-
-runtime_sqlite_filename=epusdt-runtime.db
-
-queue_concurrency=10
-queue_poll_interval_ms=1000
-callback_retry_base_seconds=5
-
-tg_bot_token=
-tg_proxy=
-tg_manage=
-
-api_auth_token=replace_with_a_long_random_secret
-order_expiration_time=10
-order_notice_max_retry=0
-forced_usdt_rate=
-api_rate_url=
-tron_grid_api_key=
-# Optional. Apply for an API key at https://www.trongrid.io/ to improve TRON request stability
-solana_rpc_url=
-ethereum_ws_url=wss://ethereum.publicnode.com
-epay_pid=
-epay_key=
-```
-
-MySQL example fields:
-
-```dotenv
-db_type=mysql
-mysql_host=127.0.0.1
-mysql_port=3306
-mysql_user=your_user
-mysql_passwd=your_password
-mysql_database=epusdt
-mysql_table_prefix=
-mysql_max_idle_conns=10
-mysql_max_open_conns=100
-mysql_max_life_time=6
-```
-
-PostgreSQL example fields:
-
-```dotenv
-db_type=postgres
-postgres_host=127.0.0.1
-postgres_port=5432
-postgres_user=your_user
-postgres_passwd=your_password
-postgres_database=epusdt
-postgres_table_prefix=
-postgres_max_idle_conns=10
-postgres_max_open_conns=100
-postgres_max_life_time=6
-```
-
-> Epusdt is the application you deploy. This guide does not involve VitePress, `epusdt-docs`, or Cloudflare Pages.
-
-## 3. Start Epusdt directly for a quick test
+## 2. Start Epusdt
 
 ```bash
 chmod +x /opt/epusdt/epusdt
@@ -131,9 +46,11 @@ cd /opt/epusdt
 ./epusdt http start
 ```
 
-If startup succeeds, Epusdt listens on `:8000` by default.
+If no `.env` is present, Epusdt starts the install wizard. Open `http://your-server-ip:8000` in your browser to complete initial setup (database, API token, domain, etc.).
 
-## 4. Configure Nginx reverse proxy
+Once submitted, the service restarts automatically.
+
+## 3. Configure Nginx reverse proxy
 
 ```nginx
 server {
@@ -165,7 +82,7 @@ Then reload Nginx:
 nginx -t && systemctl reload nginx
 ```
 
-## 5. Run with Supervisor
+## 4. Run with Supervisor
 
 ```ini
 [program:epusdt]
@@ -189,7 +106,7 @@ supervisorctl start epusdt
 supervisorctl tail epusdt
 ```
 
-## 6. Verify service and integration
+## 5. Verify service and integration
 
 Use your deployed Epusdt domain as the API base URL, for example:
 

@@ -14,19 +14,17 @@
 | Payment Option | Epusdt |
 | Merchant ID | Value of `api_auth_token` |
 | Merchant Key | (leave empty) |
-| Merchant Secret | `https://your-epusdt-domain.com/api/v1/order/create-transaction` |
+| Merchant Secret | `https://your-epusdt-domain.com/payments/epusdt/v1/order/create-transaction` |
 
-> 💡 If Dujiaoka and Epusdt are on the same server: `http://127.0.0.1:8000/api/v1/order/create-transaction`
+> 💡 If Dujiaoka and Epusdt are on the same server: `http://127.0.0.1:8000/payments/epusdt/v1/order/create-transaction`
 
 ## For Dujiaoka 2.0.4+
 
-If you're on version 2.0.4 or above (built-in Epusdt), configure the API URL directly in the payment plugin settings:
+Configure the API URL directly in the payment plugin settings:
 
 ```
 https://your-epusdt-domain.com/payments/epusdt/v1/order/create-transaction
 ```
-
-See [API Migration Guide](/api/legacy) for details on the route change.
 
 ## Plugin Source
 

@@ -6,27 +6,20 @@
 
 - 发布标签：`v0.9.1`
 - 发布时间：`2026-04-22T18:29:39Z`
-- 官方发布说明：`Full Changelog: https://github.com/GMWalletApp/epusdt/compare/v0.9.0...v0.9.1`
 
 ### 用户可见变更
 
-- GitHub Release `v0.9.1` 表明 Docker 镜像工作流已更新，可直接使用 `docker pull gmwallet/epusdt:latest`
+- 内置安装向导：首次启动时若未检测到 `.env`，会自动进入 Web 安装页面，得入数据库、API Token、域名等即可完成配置。
+- Docker 镜像支持直接拉取 `docker pull gmwallet/epusdt:latest`，无需挺载 `.env` 即可完成首次部署。
 
 ### 部署与配置变更
 
-- Docker 镜像工作流已纳入 `.env` 文件支持，直接基于官方镜像部署更顺手
-- 当前文档站已按 `gmwallet/epusdt:latest` 更新说明；但 `GMwalletApp/epusdt` 仓库里的部分 Docker 示例仍写着 `:alpine`，这部分应等待源码仓库示例同步后再完全对齐
+- 安装向导提交后自动写入 `.env`，后续启动直接进入正常模式。
+- `docker-compose.yaml` 的 `.env` 挂载现在是可选项。
 
 ### 接口变更
 
-- 官方发布说明中未明确描述新的公共 API 路由
-
-### 依据
-
-- GitHub Release `v0.9.1`
-- 发布对比链接 `v0.9.0...v0.9.1`
-- 提交 `b625bac`、`bc5bbf7`
-- 对当前仓库 `docker-compose.yaml` 与 `wiki/docker-RUN.md` 的复查
+- 本次发布无新公共 API 路由。
 
 ## v0.9.0
 

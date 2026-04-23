@@ -9,17 +9,22 @@
 
 ## 配置参数
 
-| 支付选项 | 商户 ID | 商户 Key | 商户密钥 | 备注 |
-|----------|---------|----------|----------|------|
-| Epusdt | `api_auth_token` 的值 | 空 | `https://your-epusdt-domain.com/api/v1/order/create-transaction` | 同服务器可用 `http://127.0.0.1:8000/api/v1/order/create-transaction` |
+| 字段 | 值 |
+|------|----|
+| 支付选项 | Epusdt |
+| 商户 ID | `api_auth_token` 的值 |
+| 商户 Key | 留空 |
+| 商户密钥 | `https://your-epusdt-domain.com/payments/epusdt/v1/order/create-transaction` |
+
+> 💡 若独角数卡与 Epusdt 在同一服务器：`http://127.0.0.1:8000/payments/epusdt/v1/order/create-transaction`
 
 ## 2.0.4+ 版本配置
 
-如果您使用独角数卡 2.0.4 或更高版本（内置 Epusdt），直接在后台支付插件配置中填写：
+直接在后台支付插件配置中填写 API 地址：
 
-- **API 地址**：`https://your-epusdt-domain.com/payments/epusdt/v1/order/create-transaction`
-
-详见 [API 迁移说明](/zh/api/legacy)。
+```
+https://your-epusdt-domain.com/payments/epusdt/v1/order/create-transaction
+```
 
 ## 插件源码
 

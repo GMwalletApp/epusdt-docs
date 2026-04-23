@@ -27,7 +27,7 @@ hero:
 features:
   - icon: 🐳
     title: Docker Ready
-    details: Official image now supports direct pull with `docker pull gmwallet/epusdt:latest` for faster deployment.
+    details: Pull and run with a single command. No config file needed — the built-in install wizard handles first-time setup in your browser.
   - icon: 🔒
     title: Private Deployment
     details: Your server, your wallet, your keys. No risk of fund hijacking or missed orders.

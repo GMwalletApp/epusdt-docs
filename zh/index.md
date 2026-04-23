@@ -26,8 +26,8 @@ hero:
 
 features:
   - icon: 🐳
-    title: 官方 Docker 镜像
-    details: 现在支持直接拉取 `docker pull gmwallet/epusdt:latest`，部署更直接。
+    title: Docker 快速部署
+    details: 一条命令拉取启动，无需提前创建配置文件——内置安装向导引导首次配置，浏览器完成所有设置。
   - icon: 🔒
     title: 私有化部署
     details: 自己的服务器，自己的钱包，完全掌控。无需担心资金被篡改或吞单。
