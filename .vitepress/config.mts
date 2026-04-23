@@ -22,7 +22,10 @@ export default defineConfig({
   description:
     "Epusdt (Easy Payment Usdt) — a self-hosted USDT (TRC20) payment middleware written in Go. Private deployment, HTTP API, Telegram notifications.",
 
-  locales: {
+  head: [
+    ["link", { rel: "icon", href: "/logo.png" }],
+  ],
+
     root: {
       label: "English",
       lang: "en-US",
@@ -47,7 +50,7 @@ export default defineConfig({
             {
               text: "Installation",
               items: [
-                { text: "Video Tutorial", link: "/guide/installation/tutorial" },
+                { text: "Tutorial", link: "/guide/installation/tutorial" },
                 { text: "Docker (Recommended)", link: "/guide/installation/docker" },
                 { text: "aaPanel", link: "/guide/installation/aapanel" },
                 { text: "Manual", link: "/guide/installation/manual" },
@@ -104,7 +107,7 @@ export default defineConfig({
             {
               text: "安装部署",
               items: [
-                { text: "视频教程", link: "/zh/guide/installation/tutorial" },
+                { text: "教程合集", link: "/zh/guide/installation/tutorial" },
                 { text: "Docker 部署（推荐）", link: "/zh/guide/installation/docker" },
                 { text: "aaPanel 部署", link: "/zh/guide/installation/aapanel" },
                 { text: "手动部署", link: "/zh/guide/installation/manual" },

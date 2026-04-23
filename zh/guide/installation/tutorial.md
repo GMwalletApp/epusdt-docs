@@ -1,7 +1,11 @@
-# 视频教程
+# 教程合集
 
-这里提供 Epusdt 的安装与使用视频教程，方便你快速了解整体流程。
+本页链接到社区维护的 Epusdt 教程合集，托管于 **gmwallet.top**。
 
-<video controls width="100%" src="/videos/tutorial.webm" type="video/webm"></video>
+内容涵盖安装部署、配置说明和常见接入场景。
 
-可直接观看完整演示，快速了解部署、配置与日常使用方式。
+::: info
+以下教程由社区整理维护，非官方出品。
+:::
+
+👉 [**前往 gmwallet.top 查看教程**](https://gmwallet.top)

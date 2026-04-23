@@ -1,7 +1,11 @@
-# Video Tutorial
+# Tutorial
 
-This page contains the installation and usage walkthrough video for Epusdt.
+This page links to the community-maintained Epusdt tutorial collection hosted at **gmwallet.top**.
 
-<video controls width="100%" src="/videos/tutorial.webm" type="video/webm"></video>
+The tutorials cover installation, configuration, and common integration scenarios.
 
-You can watch the full process here to quickly understand deployment, configuration, and daily usage.
+::: info
+These tutorials are maintained by the community, not the official team.
+:::
+
+👉 [**View Tutorials at gmwallet.top**](https://gmwallet.top)
