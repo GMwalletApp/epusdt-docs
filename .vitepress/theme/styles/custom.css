@@ -26,8 +26,3 @@
   font-size: 12px;
 }
 
-@media (max-width: 767px) {
-  .github-star-button {
-    display: none;
-  }
-}
