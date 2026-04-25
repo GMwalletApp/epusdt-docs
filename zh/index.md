@@ -18,6 +18,9 @@ hero:
       text: Docker 部署
       link: /zh/guide/installation/docker
     - theme: alt
+      text: GitHub Star
+      link: https://github.com/GMwalletApp/epusdt
+    - theme: alt
       text: API 文件
       link: /zh/api/reference
     - theme: alt

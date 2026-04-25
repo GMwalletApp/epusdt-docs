@@ -18,6 +18,9 @@ hero:
       text: Docker Install
       link: /guide/installation/docker
     - theme: alt
+      text: GitHub Star
+      link: https://github.com/GMwalletApp/epusdt
+    - theme: alt
       text: API Reference
       link: /api/reference
     - theme: alt
