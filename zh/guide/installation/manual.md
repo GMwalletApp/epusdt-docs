@@ -15,13 +15,31 @@ cd /opt/epusdt
 
 ### 方式 A：下載釋出包
 
+請先到目前的 release 頁面依伺服器架構選擇對應檔案，例如：
+
+- `epusdt-0.9.3-linux-amd64.tar.gz`
+- `epusdt-0.9.3-linux-arm64.tar.gz`
+
+以下示例適用於 Linux x86_64 / amd64：
+
 ```bash
-wget https://github.com/GMwalletApp/epusdt/releases/latest/download/epusdt_Linux_x86_64.tar.gz -O epusdt.tar.gz
+wget https://github.com/GMwalletApp/epusdt/releases/download/v0.9.3/epusdt-0.9.3-linux-amd64.tar.gz -O epusdt.tar.gz
 tar -xzf epusdt.tar.gz
 rm epusdt.tar.gz
 ```
 
+如果你的主機不是 amd64，請直接到 release 頁面下載對應架構的壓縮包：
+
+```text
+https://github.com/GMwalletApp/epusdt/releases/latest
+```
+
 ### 方式 B：從原始碼編譯
+
+前置條件至少需要先安裝：
+
+- `git`
+- `Go`
 
 ```bash
 git clone https://github.com/GMwalletApp/epusdt.git

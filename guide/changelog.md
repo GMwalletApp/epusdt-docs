@@ -68,7 +68,7 @@ This page summarizes published Epusdt releases using the repository's actual Git
 
 ### User-visible changes
 
-- Built-in install wizard: first run without a `.env` file now launches a web-based setup flow instead of failing. Fill in database, API token, and domain in the browser — no manual file editing required.
+- Built-in install wizard: first run without a usable config file now launches a web-based setup flow instead of failing. The current form focuses on `app_name`, `app_uri`, bind address/port, runtime path, log path, order expiration, and callback retry settings.
 - Docker image now supports direct pull with `docker pull gmwallet/epusdt:latest`; no `.env` mount needed for initial deployment.
 
 ### Deployment and configuration changes

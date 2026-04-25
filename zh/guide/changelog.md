@@ -62,8 +62,8 @@
 
 ### 使用者可見變更
 
-- 內建安裝嚮導：首次啟動時若未檢測到 `.env`，會自動進入 Web 安裝頁面，得入資料庫、API Token、域名等即可完成配置。
-- Docker 映象支援直接拉取 `docker pull gmwallet/epusdt:latest`，無需挺載 `.env` 即可完成首次部署。
+- 內建安裝嚮導：首次啟動時若沒有可用設定檔，會自動進入 Web 安裝頁面。當前表單主要涵蓋 `app_name`、`app_uri`、監聽位址/埠、執行時路徑、日誌路徑、訂單過期時間與回呼重試次數等欄位。
+- Docker 映象支援直接拉取 `docker pull gmwallet/epusdt:latest`，無需掛載 `.env` 即可完成首次部署。
 
 ### 部署與配置變更
 

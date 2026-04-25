@@ -9,8 +9,31 @@ This guide shows how to run the Epusdt service itself with aaPanel.
 1. Create a site in aaPanel for your payment domain
 2. Upload the Epusdt release package or binary
 3. Reverse proxy the site to `http://127.0.0.1:8000`
-4. Use aaPanel Supervisor to run `epusdt http start`
-5. Open the domain (or server IP) and finish the install wizard
+4. Fix program permissions before starting it with Supervisor
+5. Use aaPanel Supervisor with the correct working directory and command
+6. Open the bound domain to finish the install wizard
+
+## Recommended permissions before Supervisor
+
+If aaPanel Supervisor runs the process as `www`, make sure the deployment directory is executable and owned correctly first:
+
+```bash
+cd /www/wwwroot/epusdt
+chmod +x epusdt
+chown -R www:www /www/wwwroot/epusdt
+```
+
+## Recommended Supervisor settings
+
+- **Working directory:** `/www/wwwroot/epusdt`
+- **Command:** `./epusdt http start`
+
+Using only `epusdt http start` can fail when the working directory is wrong, because the config file path is resolved relative to the current directory.
+
+## Finish the install wizard
+
+- Recommended: open the bound domain directly, such as `https://pay.example.com`
+- Only if you are connecting to the program port directly, open `http://server-ip:8000`
 
 ## Verification
 

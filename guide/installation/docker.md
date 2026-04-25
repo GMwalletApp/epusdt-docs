@@ -2,7 +2,7 @@
 
 This guide covers deploying Epusdt with the official Docker image using Docker Compose or `docker run`.
 
-**No manual `.env` required.** If no config file is present, Epusdt starts a built-in install wizard — just open your browser and follow the steps.
+**No manual `.env` is required for the first boot.** The recommended Docker layout is to mount a dedicated host directory and point `EPUSDT_CONFIG` to a file inside it. That keeps config, the default SQLite database, and runtime data persistent **without** shadowing files from the image.
 
 ## Prerequisites
 
@@ -24,15 +24,21 @@ services:
   epusdt:
     image: gmwallet/epusdt:latest
     restart: always
+    environment:
+      EPUSDT_CONFIG: /data/.env
     ports:
       - "8000:8000"
     volumes:
-      - epusdt_data:/app
-
-volumes:
-  epusdt_data:
+      - ./data:/data
 EOF
 ```
+
+Why this layout:
+
+- `/data/.env` stores the generated config file
+- `/data/epusdt.db` becomes the default primary SQLite database
+- `/data/runtime/` stores runtime SQLite data and logs by default
+- the container image under `/app` stays untouched, so upgrades do not get masked by an old `/app` volume
 
 ### 3. Start the service
 
@@ -42,7 +48,16 @@ docker compose up -d
 
 ### 4. Complete the install wizard
 
-Open `http://your-server-ip:8000` in your browser. Epusdt will guide you through the initial setup — database, API token, domain, etc.
+Open `http://your-server-ip:8000` in your browser. The install wizard currently focuses on these fields:
+
+- `app_name`
+- `app_uri`
+- `http_bind_addr`
+- `http_bind_port`
+- `runtime_root_path`
+- `log_save_path`
+- `order_expiration_time`
+- `order_notice_max_retry`
 
 Once submitted, the service restarts automatically and is ready to use.
 
@@ -54,7 +69,9 @@ Once submitted, the service restarts automatically and is ready to use.
 docker run -d \
   --name epusdt \
   --restart always \
+  -e EPUSDT_CONFIG=/data/.env \
   -p 8000:8000 \
+  -v $(pwd)/data:/data \
   gmwallet/epusdt:latest
 ```
 
@@ -62,20 +79,19 @@ Then open `http://your-server-ip:8000` to complete setup.
 
 ---
 
-## Persistent config (optional)
+## File-based config management (optional)
 
-If you prefer to manage config as a file, mount a volume to `/app/.env`:
+If you prefer to review or edit the generated config later, use the same `./data` directory created above. After installation, the config file is stored at:
 
-```bash
-docker run -d \
-  --name epusdt \
-  --restart always \
-  -p 8000:8000 \
-  -v $(pwd)/env:/app/.env \
-  gmwallet/epusdt:latest
+```text
+./data/.env
 ```
 
-> After editing `.env`, restart the container: `docker restart epusdt`
+You can edit it directly on the host, then restart the container:
+
+```bash
+docker restart epusdt
+```
 
 ---
 
@@ -83,4 +99,5 @@ docker run -d \
 
 - After setup completes, merchant credentials and runtime options are managed from the admin panel
 - For new integrations, use the merchant `pid` + `secret_key` created in the admin panel
+- Avoid mounting the entire `/app` directory. It can cause old files from a previous container volume to shadow the new image during upgrades.
 - To upgrade: `docker pull gmwallet/epusdt:latest && docker compose up -d`
