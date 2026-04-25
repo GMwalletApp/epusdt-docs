@@ -11,7 +11,7 @@ This page summarizes published Epusdt releases using the repository's actual Git
 ## v0.9.3
 
 - Release tag: `v0.9.3`
-- Published at: `2026-04-25T10:50:00Z`
+- Published at: `2026-04-25T10:50:34Z`
 - Official release note: `Full Changelog: https://github.com/GMWalletApp/epusdt/compare/v0.9.2...v0.9.3`
 
 ### User-visible changes

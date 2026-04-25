@@ -5,7 +5,7 @@
 ## v0.9.3
 
 - 釋出標籤：`v0.9.3`
-- 釋出時間：`2026-04-25T10:50:00Z`
+- 釋出時間：`2026-04-25T10:50:34Z`
 - 官方釋出說明：`Full Changelog: https://github.com/GMWalletApp/epusdt/compare/v0.9.2...v0.9.3`
 
 ### 使用者可見變更
