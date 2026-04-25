@@ -35,7 +35,6 @@ export default defineConfig({
           { text: "Home", link: "/" },
           { text: "Guide", link: "/guide/intro" },
           { text: "API", link: "/api/reference" },
-          { text: "⭐ Star", link: "https://github.com/GMwalletApp/epusdt", target: "_blank" },
           { text: "Telegram", link: "https://t.me/epusdt_group", target: "_blank" },
         ],
         sidebar: {
@@ -88,7 +87,6 @@ export default defineConfig({
           { text: "首頁", link: "/zh/" },
           { text: "指南", link: "/zh/guide/intro" },
           { text: "API 文件", link: "/zh/api/reference" },
-          { text: "⭐ Star", link: "https://github.com/GMwalletApp/epusdt", target: "_blank" },
           { text: "Telegram 交流群", link: "https://t.me/epusdt_group", target: "_blank" },
         ],
         sidebar: {
