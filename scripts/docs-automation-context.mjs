@@ -28,11 +28,14 @@ async function github(path) {
   return response.json();
 }
 
-const [docsIssues, upstreamIssues, upstreamRelease] = await Promise.all([
+const [docsIssues, upstreamIssues, upstreamRepo, upstreamRelease] = await Promise.all([
   github("/repos/GMWalletApp/epusdt-docs/issues?state=open&per_page=50"),
   github("/repos/GMWalletApp/epusdt/issues?state=open&per_page=50"),
+  github("/repos/GMWalletApp/epusdt"),
   github("/repos/GMWalletApp/epusdt/releases/latest"),
 ]);
+
+const upstreamCommit = await github(`/repos/GMWalletApp/epusdt/commits/${upstreamRepo.default_branch}`);
 
 const report = {
   generatedAt: new Date().toISOString(),
@@ -66,11 +69,15 @@ const report = {
       title: issue.title,
       url: issue.html_url,
     })),
-  latestRelease: {
-    tag: upstreamRelease.tag_name,
-    name: upstreamRelease.name,
-    url: upstreamRelease.html_url,
-    publishedAt: upstreamRelease.published_at,
+  upstreamState: {
+    defaultBranch: upstreamRepo.default_branch,
+    latestCommitSha: upstreamCommit.sha,
+    latestRelease: {
+      tag: upstreamRelease.tag_name,
+      name: upstreamRelease.name,
+      url: upstreamRelease.html_url,
+      publishedAt: upstreamRelease.published_at,
+    },
   },
 };
 

@@ -1,5 +1,5 @@
 import { createHmac } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 
 const webhookUrl = process.env.OPENCLAW_WEBHOOK_URL;
 const webhookSecret = process.env.OPENCLAW_WEBHOOK_SECRET;
@@ -10,15 +10,35 @@ if (!webhookUrl || !webhookSecret) {
 }
 
 const context = JSON.parse(readFileSync(".automation/context.json", "utf8"));
+const trackedStatePath = ".automation/upstream-state.json";
+const trackedState = existsSync(trackedStatePath) ? JSON.parse(readFileSync(trackedStatePath, "utf8")) : null;
+
+const triggerKind = process.env.GITHUB_EVENT_NAME || "unknown";
+const eventType = triggerKind === "issues" ? "docs.fix" : "docs.update";
+
+if (eventType === "docs.update" && triggerKind === "schedule") {
+  const currentState = context.upstreamState;
+
+  const unchanged =
+    trackedState &&
+    trackedState.defaultBranch === currentState?.defaultBranch &&
+    trackedState.latestCommitSha === currentState?.latestCommitSha &&
+    trackedState.latestRelease?.tag === currentState?.latestRelease?.tag;
+
+  if (unchanged) {
+    console.log(JSON.stringify({ ok: true, skipped: true, reason: "upstream_unchanged" }));
+    process.exit(0);
+  }
+}
 
 const payload = {
   routeId: "epusdt-docs-repair",
-  eventType: "docs.fix",
+  eventType,
   repo: "GMWalletApp/epusdt-docs",
   source: "github-actions",
   trigger: {
-    kind: process.env.GITHUB_EVENT_NAME || "unknown",
-    eventName: process.env.GITHUB_EVENT_NAME || "unknown",
+    kind: triggerKind,
+    eventName: triggerKind,
     eventAction: process.env.GITHUB_EVENT_ACTION || "",
   },
   context,

@@ -1,3 +1,4 @@
 node_modules/
 .vitepress/dist/
-.automation/
+.automation/*
+!.automation/upstream-state.json
