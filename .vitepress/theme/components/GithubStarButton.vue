@@ -1,12 +1,15 @@
 <template>
   <a
     class="github-star-button"
-    href="https://github.com/GMwalletApp/epusdt"
+    href="https://github.com/GMwalletApp/epusdt/stargazers"
     target="_blank"
     rel="noreferrer"
-    aria-label="Star Epusdt on GitHub"
+    aria-label="View Epusdt GitHub star count"
   >
-    <span class="github-star-button__icon">★</span>
-    <span class="github-star-button__text">Star</span>
+    <img
+      class="github-star-button__badge"
+      src="https://img.shields.io/github/stars/GMwalletApp/epusdt?style=social"
+      alt="GitHub stars"
+    >
   </a>
 </template>
