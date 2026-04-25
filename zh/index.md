@@ -18,9 +18,6 @@ hero:
       text: Docker 部署
       link: /zh/guide/installation/docker
     - theme: alt
-      text: GitHub Star
-      link: https://github.com/GMwalletApp/epusdt
-    - theme: alt
       text: API 文件
       link: /zh/api/reference
     - theme: alt
@@ -47,3 +44,9 @@ features:
     title: 管理後臺
     details: 透過內建後臺管理 API Keys、通知通道、鏈、代幣、錢包地址與 EPay 預設值。
 ---
+
+<div class="home-star-cta">
+  <a href="https://github.com/GMwalletApp/epusdt/stargazers" target="_blank" rel="noreferrer" aria-label="View Epusdt GitHub star count">
+    <img src="https://img.shields.io/github/stars/GMwalletApp/epusdt?style=social" alt="GitHub stars">
+  </a>
+</div>
