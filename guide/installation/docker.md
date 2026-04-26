@@ -59,6 +59,12 @@ Open `http://your-server-ip:8000` in your browser. The install wizard currently 
 - `order_expiration_time`
 - `order_notice_max_retry`
 
+::: warning Docker binding requirement
+For Docker deployments, set `http_bind_addr` to `0.0.0.0`.
+
+Do **not** use `127.0.0.1`. If you save `127.0.0.1` in the wizard, Epusdt will only listen on `127.0.0.1:8000` inside the container after restart, so the published Docker port and reverse proxy access can fail.
+:::
+
 Once submitted, the service restarts automatically and is ready to use.
 
 ---

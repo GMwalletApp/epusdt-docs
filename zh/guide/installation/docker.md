@@ -59,6 +59,12 @@ docker compose up -d
 - `order_expiration_time`
 - `order_notice_max_retry`
 
+::: warning Docker 綁定位址要求
+Docker 部署時，`http_bind_addr` 必須填 `0.0.0.0`。
+
+**不要**填 `127.0.0.1`。如果在安裝嚮導裡保存成 `127.0.0.1`，Epusdt 重啟後只會在容器內監聽 `127.0.0.1:8000`，導致 Docker 映射端口或反向代理無法正常存取。
+:::
+
 提交後服務自動重啟，即可正常使用。
 
 ---
