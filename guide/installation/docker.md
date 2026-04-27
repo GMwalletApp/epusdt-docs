@@ -67,12 +67,6 @@ Do **not** use `127.0.0.1`. If you save `127.0.0.1` in the wizard, Epusdt will o
 
 Once submitted, the service restarts automatically and is ready to use.
 
-::: tip Checkout UI files in `/data`
-If you deployed with the recommended `-v ./data:/data` layout and found that the hosted checkout files were missing under `/data/static`, current upstream now auto-copies any missing built-in static files from the image into your configured `static_path` on startup.
-
-In other words, the recommended Docker layout above should keep working without a manual copy step for the checkout UI.
-:::
-
 ---
 
 ## Alternative: `docker run` quick start

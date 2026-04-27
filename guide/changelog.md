@@ -8,28 +8,6 @@ This page summarizes published Epusdt releases using the repository's actual Git
 - Supplementary source: tag compare diffs and merged commit messages
 - This page avoids inventing features that are not visible in release or code history
 
-## Unreleased (after `v0.9.3`)
-
-### User-visible changes
-
-- TRON payment scanning was switched back to block-based listening, so TRC20 `USDT` detection is active again in current source history after the temporary revert.
-- A follow-up order notification fix removed one broken link path in the payment processing flow.
-
-### Deployment and configuration changes
-
-- Startup now auto-copies missing built-in static checkout files from the binary image into the configured `static_path`.
-- This specifically improves the recommended Docker layout that mounts only `./data:/data`, so first-time or upgraded containers no longer require a manual copy of checkout UI files into `/data/static` when those files are missing.
-
-### API changes
-
-- No new public HTTP route was introduced in these post-`v0.9.3` commits.
-
-### Evidence used
-
-- Commits `de9c45a`, `96ea748`, `9e885d8`, `51a2acc`
-- Upstream issue `#55` about missing checkout files in Docker deployments
-- Compare diff `74c3a3a...51a2acc`
-
 ## v0.9.3
 
 - Release tag: `v0.9.3`
