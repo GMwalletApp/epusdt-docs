@@ -22,9 +22,8 @@ This page summarizes published Epusdt releases using the repository's actual Git
 
 ### Deployment and configuration changes
 
-- Startup now auto-copies missing built-in checkout static files from the binary image into the configured `static_path`.
-- This directly addresses the Docker case where a deployment mounts only `./data:/data` and previously ended up with missing hosted checkout files under `/data/static`.
-- Legacy embedded `static/` checkout assets were removed from the runtime path in favor of the SPA-based `www/` delivery.
+- The hosted checkout flow now relies on the SPA-based `www/` delivery path instead of the older dedicated `static/` checkout asset path.
+- The Docker image was later cleaned up to remove redundant `static` copy steps that no longer match the active SPA checkout delivery path.
 
 ### API changes
 
