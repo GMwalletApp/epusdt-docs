@@ -2,6 +2,38 @@
 
 本文基於 `GMwalletApp/epusdt` 倉庫中實際存在的 GitHub Releases、Tag、Release Note 和程式碼差異整理，不憑空編寫未釋出特性。
 
+## v0.9.5
+
+- 釋出標籤：`v0.9.5`
+- 釋出時間：`2026-05-09T13:51:58Z`
+- 官方釋出說明：`Full Changelog: https://github.com/GMWalletApp/epusdt/compare/v0.9.4...v0.9.5`
+
+### 使用者可見變更
+
+- 託管收銀臺現在新增了 `okpay` 支付切換路徑，不再只有原本的鏈上網路切換流程。
+- checkout 回應現在會返回 `payment_url`，因此像 OkPay 這類第三方支付子訂單可以明確跳轉到外部支付連結，而不是只依賴本地收銀臺顯示地址。
+- 公開設定回應現在會暴露站點側的 cashier 名稱、logo URL、網站標題與支援連結，前端品牌展示不必再把這些資訊硬編碼在頁面裡。
+
+### 部署與配置變更
+
+- `.env.example` 已刪除舊的 PostgreSQL / MySQL 設定區塊；目前公開配置範例已回到以 SQLite 為主的實際部署路徑，不再暗示這兩種資料庫仍是當前正常安裝流程的一部分。
+- Dockerfile 清理掉了多餘的 `static` 複製步驟，與目前實際使用的前端交付路徑保持一致。
+- README 也順手更新了 logo 與免責聲明，但相較之下屬於次要整理，不是本次版本的主要執行時變更。
+
+### 介面變更
+
+- 新增 OkPay 回撥入口：`POST /payments/okpay/v1/notify`。
+- `POST /pay/switch-network` 現在文件與實際請求示例都已納入 `network=okpay`，不再只限鏈上網路值。
+- checkout 回應新增 `payment_url` 欄位。
+- supported-assets / public-config 類回應現在會一併暴露 site config、EPay 預設值與 OkPay 公開配置欄位，供前端直接使用。
+
+### 依據
+
+- GitHub Release `v0.9.5`
+- 對比差異 `v0.9.4...v0.9.5`
+- 提交 `ff157c3`、`3623a54`、`377176a`、`32aa1b6`、`a4022df`、`53e66ba`
+- 關鍵程式碼路徑 `src/controller/comm/okpay_controller.go`、`src/model/response/pay_response.go`、`src/model/response/support_response.go`、`src/.env.example`
+
 ## v0.9.4
 
 - 釋出標籤：`v0.9.4`

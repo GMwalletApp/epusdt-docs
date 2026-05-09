@@ -8,6 +8,38 @@ This page summarizes published Epusdt releases using the repository's actual Git
 - Supplementary source: tag compare diffs and merged commit messages
 - This page avoids inventing features that are not visible in release or code history
 
+## v0.9.5
+
+- Release tag: `v0.9.5`
+- Published at: `2026-05-09T13:51:58Z`
+- Official release note: `Full Changelog: https://github.com/GMWalletApp/epusdt/compare/v0.9.4...v0.9.5`
+
+### User-visible changes
+
+- Hosted checkout now includes an `okpay` payment-switch path alongside the existing on-chain network selection flow.
+- The payment flow can now hand back a `payment_url` in checkout responses, so third-party payment hops such as OkPay child orders have an explicit redirect target instead of relying only on a local cashier address display.
+- Public config responses now expose site-facing cashier metadata such as name, logo URL, website title, and support link, making frontend branding/config rendering less hard-coded.
+
+### Deployment and configuration changes
+
+- The example environment file removed the old PostgreSQL and MySQL config blocks; current published config guidance now reflects SQLite-focused runtime defaults instead of suggesting those database backends are still part of the normal setup path.
+- Dockerfile cleanup removed redundant `static` copy steps that no longer match the active frontend delivery path.
+- README housekeeping also refreshed logo/disclaimer content, but those are secondary to the runtime/payment changes above.
+
+### API changes
+
+- Added OkPay callback entry: `POST /payments/okpay/v1/notify`.
+- `POST /pay/switch-network` now documents/accepts `network=okpay` in addition to on-chain network values.
+- Checkout response payloads now include `payment_url`.
+- Supported-assets / public-config style responses now expose site config, EPay defaults, and OkPay public config fields for frontend consumption.
+
+### Evidence used
+
+- GitHub release `v0.9.5`
+- Compare diff `v0.9.4...v0.9.5`
+- Commits `ff157c3`, `3623a54`, `377176a`, `32aa1b6`, `a4022df`, `53e66ba`
+- Code paths including `src/controller/comm/okpay_controller.go`, `src/model/response/pay_response.go`, `src/model/response/support_response.go`, `src/.env.example`
+
 ## v0.9.4
 
 - Release tag: `v0.9.4`
