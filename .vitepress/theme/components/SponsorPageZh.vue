@@ -1,26 +1,12 @@
 <template>
   <div class="sponsor-page">
-    <div class="sponsor-hero">
-      <span class="sponsor-eyebrow">支持專案</span>
-      <h1>一起讓 Epusdt 做得更好</h1>
-      <p>
-        如果 Epusdt 對你的項目有幫助，歡迎透過加密貨幣贊助，支持後續開發、文件維護與產品持續打磨。
-      </p>
-    </div>
-
-    <div class="sponsor-warning">
-      <strong>請注意：</strong> 轉帳前請再次確認網路。若發送到錯誤鏈路，資產可能無法找回。
-    </div>
+    <p class="sponsor-intro">
+      如果 Epusdt 對你的項目有幫助，歡迎透過加密貨幣贊助支持後續開發。
+    </p>
 
     <div class="sponsor-grid">
       <section class="sponsor-card">
-        <div class="sponsor-card__head">
-          <div>
-            <div class="sponsor-card__label">TRON</div>
-            <h2>TRC-20 地址</h2>
-          </div>
-          <span class="sponsor-chip sponsor-chip--tron">TRC-20</span>
-        </div>
+        <h2>TRON (TRC-20)</h2>
 
         <div class="sponsor-qr-frame">
           <img src="/sponsor/tron-trc20.png" alt="TRON TRC-20 贊助二維碼" />
@@ -32,18 +18,8 @@
         </div>
       </section>
 
-      <section class="sponsor-card sponsor-card--wide">
-        <div class="sponsor-card__head">
-          <div>
-            <div class="sponsor-card__label">EVM Networks</div>
-            <h2>多鏈共用地址</h2>
-          </div>
-          <div class="sponsor-chip-group">
-            <span class="sponsor-chip">BSC</span>
-            <span class="sponsor-chip">ETH</span>
-            <span class="sponsor-chip">Polygon</span>
-          </div>
-        </div>
+      <section class="sponsor-card">
+        <h2>EVM (BSC / ETH / Polygon)</h2>
 
         <div class="sponsor-qr-frame">
           <img src="/sponsor/evm-multichain.png" alt="EVM 共用贊助二維碼" />
@@ -53,11 +29,26 @@
           <span class="sponsor-address-label">錢包地址</span>
           <code>0x6c63989c22e89e6f76105f399243ef6b417b205b</code>
         </div>
-
-        <p class="sponsor-card__hint">
-          這個地址可同時接收 BSC、Ethereum、Polygon 上的資產。若不確定，建議先小額測試再正式轉帳。
-        </p>
       </section>
     </div>
+
+    <section class="sponsor-devs">
+      <h2>開發者名單</h2>
+
+      <div class="sponsor-devs__list">
+        <a class="sponsor-dev" href="https://github.com/line-6000" target="_blank" rel="noreferrer">@line-6000</a>
+        <a class="sponsor-dev" href="https://github.com/mar-heaven" target="_blank" rel="noreferrer">@mar-heaven</a>
+        <a class="sponsor-dev" href="https://github.com/assimon" target="_blank" rel="noreferrer">@assimon</a>
+        <a class="sponsor-dev" href="https://github.com/alphago9" target="_blank" rel="noreferrer">@alphago9</a>
+        <a class="sponsor-dev" href="https://github.com/Astra3456" target="_blank" rel="noreferrer">@Astra3456</a>
+        <a class="sponsor-dev" href="https://github.com/dbidib" target="_blank" rel="noreferrer">@dbidib</a>
+        <a class="sponsor-dev" href="https://github.com/waifudaisuki" target="_blank" rel="noreferrer">@waifudaisuki</a>
+        <a class="sponsor-dev" href="https://github.com/CarpCap" target="_blank" rel="noreferrer">@CarpCap</a>
+        <a class="sponsor-dev" href="https://github.com/BlueSkyXN" target="_blank" rel="noreferrer">@BlueSkyXN</a>
+        <a class="sponsor-dev" href="https://github.com/tbxark" target="_blank" rel="noreferrer">@tbxark</a>
+        <a class="sponsor-dev" href="https://github.com/jiamovo" target="_blank" rel="noreferrer">@jiamovo</a>
+        <a class="sponsor-dev" href="https://github.com/ZhangYiQiu" target="_blank" rel="noreferrer">@ZhangYiQiu</a>
+      </div>
+    </section>
   </div>
 </template>

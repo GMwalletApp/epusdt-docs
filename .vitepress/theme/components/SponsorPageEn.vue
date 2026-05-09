@@ -1,27 +1,12 @@
 <template>
   <div class="sponsor-page">
-    <div class="sponsor-hero">
-      <span class="sponsor-eyebrow">Support the project</span>
-      <h1>Help keep Epusdt growing</h1>
-      <p>
-        If Epusdt helps your project, you can support ongoing development and maintenance with a crypto donation.
-        Every contribution helps improve documentation, product polish, and future features.
-      </p>
-    </div>
-
-    <div class="sponsor-warning">
-      <strong>Important:</strong> Please confirm the network before transferring. Sending funds on the wrong chain may result in permanent loss.
-    </div>
+    <p class="sponsor-intro">
+      If Epusdt helps your project, you can support ongoing development with a crypto donation.
+    </p>
 
     <div class="sponsor-grid">
       <section class="sponsor-card">
-        <div class="sponsor-card__head">
-          <div>
-            <div class="sponsor-card__label">TRON</div>
-            <h2>TRC-20 Address</h2>
-          </div>
-          <span class="sponsor-chip sponsor-chip--tron">TRC-20</span>
-        </div>
+        <h2>TRON (TRC-20)</h2>
 
         <div class="sponsor-qr-frame">
           <img src="/sponsor/tron-trc20.png" alt="TRON TRC-20 donation QR code" />
@@ -33,18 +18,8 @@
         </div>
       </section>
 
-      <section class="sponsor-card sponsor-card--wide">
-        <div class="sponsor-card__head">
-          <div>
-            <div class="sponsor-card__label">EVM Networks</div>
-            <h2>Shared Multi-Chain Address</h2>
-          </div>
-          <div class="sponsor-chip-group">
-            <span class="sponsor-chip">BSC</span>
-            <span class="sponsor-chip">ETH</span>
-            <span class="sponsor-chip">Polygon</span>
-          </div>
-        </div>
+      <section class="sponsor-card">
+        <h2>EVM (BSC / ETH / Polygon)</h2>
 
         <div class="sponsor-qr-frame">
           <img src="/sponsor/evm-multichain.png" alt="EVM shared donation QR code" />
@@ -54,11 +29,26 @@
           <span class="sponsor-address-label">Wallet address</span>
           <code>0x6c63989c22e89e6f76105f399243ef6b417b205b</code>
         </div>
-
-        <p class="sponsor-card__hint">
-          This address can receive assets on BSC, Ethereum, and Polygon. If you are unsure, test with a small amount first.
-        </p>
       </section>
     </div>
+
+    <section class="sponsor-devs">
+      <h2>Developers</h2>
+
+      <div class="sponsor-devs__list">
+        <a class="sponsor-dev" href="https://github.com/line-6000" target="_blank" rel="noreferrer">@line-6000</a>
+        <a class="sponsor-dev" href="https://github.com/mar-heaven" target="_blank" rel="noreferrer">@mar-heaven</a>
+        <a class="sponsor-dev" href="https://github.com/assimon" target="_blank" rel="noreferrer">@assimon</a>
+        <a class="sponsor-dev" href="https://github.com/alphago9" target="_blank" rel="noreferrer">@alphago9</a>
+        <a class="sponsor-dev" href="https://github.com/Astra3456" target="_blank" rel="noreferrer">@Astra3456</a>
+        <a class="sponsor-dev" href="https://github.com/dbidib" target="_blank" rel="noreferrer">@dbidib</a>
+        <a class="sponsor-dev" href="https://github.com/waifudaisuki" target="_blank" rel="noreferrer">@waifudaisuki</a>
+        <a class="sponsor-dev" href="https://github.com/CarpCap" target="_blank" rel="noreferrer">@CarpCap</a>
+        <a class="sponsor-dev" href="https://github.com/BlueSkyXN" target="_blank" rel="noreferrer">@BlueSkyXN</a>
+        <a class="sponsor-dev" href="https://github.com/tbxark" target="_blank" rel="noreferrer">@tbxark</a>
+        <a class="sponsor-dev" href="https://github.com/jiamovo" target="_blank" rel="noreferrer">@jiamovo</a>
+        <a class="sponsor-dev" href="https://github.com/ZhangYiQiu" target="_blank" rel="noreferrer">@ZhangYiQiu</a>
+      </div>
+    </section>
   </div>
 </template>
