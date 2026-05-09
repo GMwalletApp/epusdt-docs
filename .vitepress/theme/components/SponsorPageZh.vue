@@ -33,7 +33,7 @@
     </div>
 
     <section class="sponsor-devs">
-      <h2>贊助者名單</h2>
+      <h2>開發者名單</h2>
 
       <div class="sponsor-devs__list">
         <a class="sponsor-person" href="https://github.com/line-6000" target="_blank" rel="noreferrer">

@@ -60,6 +60,7 @@
   padding: 0;
   border: 0;
   font-size: 1.05rem;
+  text-align: center;
 }
 
 .sponsor-qr-frame {
@@ -91,17 +92,18 @@
   color: var(--vp-c-text-3);
   text-transform: uppercase;
   letter-spacing: 0.08em;
+  text-align: center;
 }
 
 .sponsor-address-block code {
   display: block;
   overflow-wrap: anywhere;
-  padding: 12px 14px;
-  border-radius: 10px;
-  background: var(--vp-c-bg);
+  padding: 12px 0;
+  background: transparent;
   color: var(--vp-c-brand-1);
   font-size: 0.94rem;
   line-height: 1.7;
+  text-align: center;
 }
 
 .sponsor-devs {
