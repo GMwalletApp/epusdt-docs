@@ -10,6 +10,8 @@
 
 From the admin panel API key records. Each merchant has a `pid` and a matching `secret_key`.
 
-## Why does supported-assets differ between environments?
+## Why does the GMPay config differ between environments?
 
-Because `/payments/gmpay/v1/supported-assets` is computed from enabled chains, enabled chain tokens, and available wallet addresses in your own admin data.
+Because `GET /payments/gmpay/v1/config` is computed from your own admin data.
+
+Its `data.supported_assets` list depends on enabled chains, enabled chain tokens, and available wallet addresses in that environment.

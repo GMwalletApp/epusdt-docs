@@ -44,11 +44,19 @@ POST /payments/gmpay/v1/order/create-transaction
 
 ## 常用配套介面
 
-- `GET /payments/gmpay/v1/supported-assets`
+- `GET /payments/gmpay/v1/config`
 - `POST /pay/switch-network`
+
+如果前端需要動態取得可用鏈 / 代幣，請從 `/payments/gmpay/v1/config` 回應中的 `data.supported_assets` 讀取。
+
+同一個 config 回應也會帶出公開收銀臺品牌資訊（`data.site`）以及 EPay / OkPay 前端預設值（`data.epay`、`data.okpay`）。
 
 ## 回撥驗證
 
 GMPay 成功回撥會以 JSON `POST` 發送到 `notify_url`。
 
 使用同一商戶的 `secret_key` 驗證回傳 `signature`，然後返回純文字 `ok`。
+
+## 成功回應補充
+
+目前原始碼在建單成功回應中也會返回 `payment_url`，因此呼叫端可以直接取得託管收銀臺跳轉地址，不必自行拼接。

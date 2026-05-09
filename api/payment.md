@@ -41,13 +41,26 @@ POST /payments/gmpay/v1/order/create-transaction
 }
 ```
 
-## 2. Supported assets
+**Success response note**
+
+Current source includes `payment_url` in the create-order success payload, so callers can use that field directly as the hosted-checkout redirect target.
+
+## 2. GMPay public config
 
 ```text
-GET /payments/gmpay/v1/supported-assets
+GET /payments/gmpay/v1/config
 ```
 
-Returns enabled chain/token pairs that also have at least one available wallet address. The result is computed from admin data, so do not hardcode a docs-era static list.
+Current source returns frontend-facing payment config in one payload.
+
+Important fields inside `data` include:
+
+- `supported_assets` — enabled chain/token pairs that also have at least one available wallet address
+- `site` — public cashier branding such as cashier name, logo URL, website title, and support link
+- `epay` — EPay default token / currency / network
+- `okpay` — public OkPay toggle / token allowance config
+
+So if a client needs dynamic network/token options, read them from `data.supported_assets` instead of hardcoding a docs-era static list.
 
 ## 3. EPay-compatible redirect create-order
 
@@ -134,3 +147,13 @@ JSON body:
 ```
 
 Use this from the hosted cashier flow to switch to another network / token combination.
+
+Current source also accepts the special value `network=okpay`, which creates or reuses an OkPay-hosted child order and returns its `payment_url`.
+
+## 6. OkPay callback entry
+
+```text
+POST /payments/okpay/v1/notify
+```
+
+This is the server-side callback entry consumed by the OkPay payment flow in current source. Normal merchant integrations do not call it directly from the browser.

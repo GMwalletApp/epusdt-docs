@@ -32,4 +32,4 @@ POST /payments/epay/v1/order/create-transaction/submit.php
 - 所有入站請求補上 `pid`
 - 改用商戶 API key 的 `secret_key` 重算簽名
 - 不要再依賴舊文件裡的 `/payments/epusdt/v1/...`
-- 如果前端需要動態顯示鏈 / 代幣，請改查 `/payments/gmpay/v1/supported-assets`
+- 如果前端需要動態顯示鏈 / 代幣，請改查 `/payments/gmpay/v1/config`，並從 `data.supported_assets` 讀取

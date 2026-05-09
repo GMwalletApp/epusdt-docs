@@ -32,4 +32,4 @@ POST /payments/epay/v1/order/create-transaction/submit.php
 - Add `pid` to all inbound requests
 - Re-sign requests with the merchant row's `secret_key`
 - Stop relying on old docs that mentioned `/payments/epusdt/v1/...`
-- If you need dynamic chain/token UI, fetch `/payments/gmpay/v1/supported-assets`
+- If you need dynamic chain/token UI, fetch `/payments/gmpay/v1/config` and read `data.supported_assets`

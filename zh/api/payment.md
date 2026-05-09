@@ -41,13 +41,26 @@ POST /payments/gmpay/v1/order/create-transaction
 }
 ```
 
-## 2. 可用鏈與代幣
+**成功回應補充**
+
+目前原始碼在建單成功回應中也會返回 `payment_url`，因此呼叫端可以直接把它當成託管收銀臺跳轉地址使用。
+
+## 2. GMPay 公開配置
 
 ```text
-GET /payments/gmpay/v1/supported-assets
+GET /payments/gmpay/v1/config
 ```
 
-回傳的是目前後臺已啟用、且該鏈上至少存在一個可用錢包地址的鏈 / 代幣組合，所以不要把文件裡某個固定清單當成永遠正確。
+目前原始碼會一次返回前端可用的支付配置。
+
+`data` 內的重要欄位包括：
+
+- `supported_assets` —— 目前後臺已啟用、且該鏈上至少存在一個可用錢包地址的鏈 / 代幣組合
+- `site` —— 收銀臺公開品牌資訊，例如 cashier 名稱、logo URL、網站標題、支援連結
+- `epay` —— EPay 預設代幣 / 法幣 / 網路
+- `okpay` —— 公開的 OkPay 開關與可用代幣設定
+
+所以如果前端需要動態展示鏈 / 代幣，應該從 `data.supported_assets` 讀取，而不是把文件裡某個固定清單當成永遠正確。
 
 ## 3. EPay 相容跳轉建單
 
@@ -134,3 +147,13 @@ JSON 範例：
 ```
 
 這個介面主要給託管收銀臺使用，用來切換到另一個可用的鏈 / 代幣組合。
+
+目前原始碼也接受特殊值 `network=okpay`；此時會建立或重用一筆 OkPay 子訂單，並回傳它的 `payment_url`。
+
+## 6. OkPay 回撥入口
+
+```text
+POST /payments/okpay/v1/notify
+```
+
+這是目前原始碼中供 OkPay 支付流程使用的伺服器端回撥入口；正常商戶前端不需要直接從瀏覽器呼叫它。

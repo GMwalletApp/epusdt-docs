@@ -22,17 +22,18 @@
 
 ### 介面變更
 
+- GMPay 對前端公開的支付配置現在改由 `GET /payments/gmpay/v1/config` 提供，不再沿用較早期那條獨立的 supported-assets 查詢路徑。
+- `GET /payments/gmpay/v1/config` 會一次返回 `supported_assets`、站點品牌資訊、EPay 預設值與 OkPay 公開配置欄位。
 - 新增 OkPay 回撥入口：`POST /payments/okpay/v1/notify`。
 - `POST /pay/switch-network` 現在文件與實際請求示例都已納入 `network=okpay`，不再只限鏈上網路值。
 - checkout 回應新增 `payment_url` 欄位。
-- supported-assets / public-config 類回應現在會一併暴露 site config、EPay 預設值與 OkPay 公開配置欄位，供前端直接使用。
 
 ### 依據
 
 - GitHub Release `v0.9.5`
 - 對比差異 `v0.9.4...v0.9.5`
-- 提交 `ff157c3`、`3623a54`、`377176a`、`32aa1b6`、`a4022df`、`53e66ba`
-- 關鍵程式碼路徑 `src/controller/comm/okpay_controller.go`、`src/model/response/pay_response.go`、`src/model/response/support_response.go`、`src/.env.example`
+- 提交 `377176a`、`3623a54`、`51ad344`、`ff157c3`、`1a35cab`、`2d546e3`
+- 關鍵程式碼路徑 `src/route/router.go`、`src/controller/comm/supported_asset_controller.go`、`src/model/response/order_response.go`、`src/model/response/support_response.go`、`src/.env.example`
 
 ## v0.9.4
 

@@ -15,5 +15,5 @@ It also **does not register** the old compatibility route `POST /payments/epusdt
 
 1. **Every incoming order request must identify the merchant with `pid`.**
 2. **Signature verification uses the `secret_key` of the matching `api_keys` row**, not an old global route-specific key.
-3. **Supported networks/tokens are admin-driven**, so query `/payments/gmpay/v1/supported-assets` instead of assuming a fixed list.
+3. **Supported networks/tokens are admin-driven**, so query `/payments/gmpay/v1/config` and read `data.supported_assets` instead of assuming a fixed list.
 4. **EPay defaults** now come from admin settings (`epay.default_token`, `epay.default_currency`, `epay.default_network`), not from deprecated env keys like `epay_pid` / `epay_key`.

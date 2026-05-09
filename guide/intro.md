@@ -13,7 +13,7 @@ It also exposes:
 
 - Hosted cashier pages under `/pay/*`
 - Network switching for hosted checkout: `POST /pay/switch-network`
-- Supported asset discovery: `GET /payments/gmpay/v1/supported-assets`
+- Public payment config for frontend/cashier bootstrapping: `GET /payments/gmpay/v1/config`
 - Admin API under `/admin/api/v1/*` for API keys, chains, chain tokens, wallet addresses, notification channels, and settings
 - Admin rate settings that can use either an exchange-rate API URL or a forced USDT rate; if you rely only on the forced rate, the API URL can be left empty
 
@@ -34,11 +34,15 @@ Incoming GMPay and EPay requests are both identified by `pid` and signed with th
 
 Current source does **not** hardcode one public list in the docs layer.
 
-The `/payments/gmpay/v1/supported-assets` response is computed from live admin data:
+The `GET /payments/gmpay/v1/config` response is computed from live admin data.
+
+Its `data.supported_assets` field is built from:
 
 - enabled `chains`
 - enabled `chain_tokens`
 - available `wallet_address`
+
+The same response also includes public site/cashier branding plus EPay / OkPay frontend config fields.
 
 So the real supported networks/tokens depend on what the operator enabled in the admin console.
 

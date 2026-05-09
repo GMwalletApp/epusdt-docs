@@ -28,17 +28,18 @@ This page summarizes published Epusdt releases using the repository's actual Git
 
 ### API changes
 
+- Public GMPay frontend config now comes from `GET /payments/gmpay/v1/config` instead of the older standalone supported-assets lookup.
+- `GET /payments/gmpay/v1/config` returns `supported_assets` together with site branding, EPay defaults, and OkPay public config fields.
 - Added OkPay callback entry: `POST /payments/okpay/v1/notify`.
 - `POST /pay/switch-network` now documents/accepts `network=okpay` in addition to on-chain network values.
 - Checkout response payloads now include `payment_url`.
-- Supported-assets / public-config style responses now expose site config, EPay defaults, and OkPay public config fields for frontend consumption.
 
 ### Evidence used
 
 - GitHub release `v0.9.5`
 - Compare diff `v0.9.4...v0.9.5`
-- Commits `ff157c3`, `3623a54`, `377176a`, `32aa1b6`, `a4022df`, `53e66ba`
-- Code paths including `src/controller/comm/okpay_controller.go`, `src/model/response/pay_response.go`, `src/model/response/support_response.go`, `src/.env.example`
+- Commits `377176a`, `3623a54`, `51ad344`, `ff157c3`, `1a35cab`, `2d546e3`
+- Code paths including `src/route/router.go`, `src/controller/comm/supported_asset_controller.go`, `src/model/response/order_response.go`, `src/model/response/support_response.go`, `src/.env.example`
 
 ## v0.9.4
 
