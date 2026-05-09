@@ -79,7 +79,7 @@ POST /payments/epay/v1/order/create-transaction/submit.php
 | `notify_url` | ✅ | Callback URL |
 | `return_url` | ❌ | Browser return URL |
 | `name` | ❌ | Product name |
-| `type` | ❌ | Client-facing payment label |
+| `type` | ❌ | Accepted for compatibility, but current source does not persist it into the shared order payload |
 | `sign` | ✅ | MD5 signature using merchant `secret_key` |
 | `sign_type` | ❌ | Usually `MD5` |
 
@@ -121,7 +121,7 @@ When the order `payment_type` is `Epay`, current worker sends a **GET** request 
 - `pid`
 - `trade_no`
 - `out_trade_no`
-- `type`
+- `type` *(currently fixed to `alipay`, not inherited from the inbound create-order request)*
 - `name`
 - `money`
 - `trade_status`
@@ -129,6 +129,8 @@ When the order `payment_type` is `Epay`, current worker sends a **GET** request 
 - `sign_type=MD5`
 
 Verify `sign` with the same merchant `secret_key`, then return exact plain text `ok`.
+
+Important: in current source, the inbound EPay `type` field is accepted as a compatibility parameter, but it is not written into the shared order payload. The later EPay callback currently emits a fixed `type=alipay` value instead of replaying the merchant's inbound `type`.
 
 ## 5. Switch network
 

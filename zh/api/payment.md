@@ -79,7 +79,7 @@ POST /payments/epay/v1/order/create-transaction/submit.php
 | `notify_url` | ✅ | 回撥地址 |
 | `return_url` | ❌ | 瀏覽器返回地址 |
 | `name` | ❌ | 商品名稱 |
-| `type` | ❌ | 前端展示的支付型別標識 |
+| `type` | ❌ | 相容欄位；目前原始碼會接受它，但不會把它寫入後續共用訂單資料 |
 | `sign` | ✅ | 使用商戶 `secret_key` 計算的 MD5 簽名 |
 | `sign_type` | ❌ | 一般為 `MD5` |
 
@@ -121,7 +121,7 @@ POST /payments/epay/v1/order/create-transaction/submit.php
 - `pid`
 - `trade_no`
 - `out_trade_no`
-- `type`
+- `type` *（目前固定為 `alipay`，不會沿用建單入站時傳入的 `type`）*
 - `name`
 - `money`
 - `trade_status`
@@ -129,6 +129,8 @@ POST /payments/epay/v1/order/create-transaction/submit.php
 - `sign_type=MD5`
 
 這裡的 `sign` 同樣使用該商戶的 `secret_key` 驗證，成功後返回純文字 `ok`。
+
+要注意：目前原始碼雖然接受入站 EPay `type` 參數，但不會把它寫進後續共用訂單資料。之後 EPay 成功回撥裡送出的 `type` 目前是固定 `alipay`，不是沿用商戶最初傳入的值。
 
 ## 5. 切換支付網路
 

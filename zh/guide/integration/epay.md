@@ -37,6 +37,8 @@ POST /payments/epay/v1/order/create-transaction/submit.php
 - `type`
 - `sign_type`
 
+`type` 目前主要只是相容舊式入站欄位。現行原始碼會接受它，但不會把它寫入後續共用訂單資料。
+
 ## EPay 預設值來源
 
 驗籤成功後，目前原始碼會使用後臺設定補出共用訂單欄位：
@@ -66,5 +68,7 @@ POST /payments/epay/v1/order/create-transaction/submit.php
 ## 回撥驗證
 
 當訂單 `payment_type = Epay` 時，worker 後續會以 EPay 風格 query 參數回撥你的 `notify_url`，並且使用**同一商戶的 `secret_key`** 來計算簽名。
+
+有一個目前原始碼層面的細節需要注意：回撥中的 `type` 現在固定是 `alipay`，**不會**沿用商戶建單時傳入的 `type`。
 
 不要再用舊文件裡獨立的 `epay_key` 去驗這類回撥。

@@ -35,6 +35,8 @@ Optional common fields:
 - `type`
 - `sign_type`
 
+`type` is currently only a compatibility-style inbound field. Current source accepts it, but does not persist it into the shared order payload used later in processing.
+
 ## EPay defaults
 
 After signature verification succeeds, current source builds the internal shared order payload with admin settings:
@@ -62,5 +64,7 @@ In current source, that path is now the redirect entry for the hosted cashier SP
 ## Callback verification
 
 When the created order carries `payment_type = Epay`, the worker later calls your `notify_url` with EPay-style query parameters and signs them with the **same merchant `secret_key`**.
+
+One important current-source detail: the callback `type` value is currently fixed to `alipay`. It does **not** replay the merchant's inbound create-order `type` field.
 
 Do not verify those callbacks with an old standalone `epay_key`.
