@@ -49,6 +49,15 @@ const report = {
           url: event.issue.html_url,
         }
       : null,
+    comment: event.comment
+      ? {
+          id: event.comment.id,
+          body: event.comment.body,
+          url: event.comment.html_url,
+          user: event.comment.user?.login,
+          createdAt: event.comment.created_at,
+        }
+      : null,
   },
   docsRepoIssues: docsIssues.filter((issue) => !issue.pull_request).map((issue) => ({
     number: issue.number,
