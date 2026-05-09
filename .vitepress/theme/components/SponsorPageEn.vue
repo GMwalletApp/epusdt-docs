@@ -1,9 +1,23 @@
 <script setup lang="ts">
+import { ref } from 'vue';
+
+const copiedAddress = ref<string | null>(null);
+let copiedTimer: ReturnType<typeof setTimeout> | null = null;
+
 const copyAddress = async (address: string) => {
   try {
     await navigator.clipboard.writeText(address);
+    copiedAddress.value = address;
+
+    if (copiedTimer) {
+      clearTimeout(copiedTimer);
+    }
+
+    copiedTimer = setTimeout(() => {
+      copiedAddress.value = null;
+    }, 1800);
   } catch {
-    // ignore copy failures
+    copiedAddress.value = null;
   }
 };
 </script>
@@ -27,6 +41,9 @@ const copyAddress = async (address: string) => {
           <button class="sponsor-address-copy" type="button" @click="copyAddress('TUsn5Nhi2P12dQ2ecrocUX6e6Jsi6EE8TY')">
             <code>TUsn5Nhi2P12dQ2ecrocUX6e6Jsi6EE8TY</code>
           </button>
+          <span class="sponsor-address-feedback" :class="{ 'is-visible': copiedAddress === 'TUsn5Nhi2P12dQ2ecrocUX6e6Jsi6EE8TY' }">
+            Copied
+          </span>
         </div>
       </section>
 
@@ -42,6 +59,9 @@ const copyAddress = async (address: string) => {
           <button class="sponsor-address-copy" type="button" @click="copyAddress('0x6c63989c22e89e6f76105f399243ef6b417b205b')">
             <code>0x6c63989c22e89e6f76105f399243ef6b417b205b</code>
           </button>
+          <span class="sponsor-address-feedback" :class="{ 'is-visible': copiedAddress === '0x6c63989c22e89e6f76105f399243ef6b417b205b' }">
+            Copied
+          </span>
         </div>
       </section>
     </div>
@@ -90,9 +110,9 @@ const copyAddress = async (address: string) => {
           <img class="sponsor-person__avatar" src="https://avatars.githubusercontent.com/u/9513891?v=4" alt="TBXark avatar" />
           <span class="sponsor-person__name">TBXark</span>
         </a>
-        <a class="sponsor-person" href="https://github.com/jiamovo" target="_blank" rel="noreferrer">
-          <img class="sponsor-person__avatar" src="https://avatars.githubusercontent.com/u/114427102?v=4" alt="jiamovo avatar" />
-          <span class="sponsor-person__name">jiamovo</span>
+        <a class="sponsor-person" href="https://github.com/Yufeifeio" target="_blank" rel="noreferrer">
+          <img class="sponsor-person__avatar" src="https://avatars.githubusercontent.com/u/114427102?v=4" alt="Yufeifeio avatar" />
+          <span class="sponsor-person__name">Yufeifeio</span>
         </a>
         <a class="sponsor-person" href="https://github.com/ZhangYiQiu" target="_blank" rel="noreferrer">
           <img class="sponsor-person__avatar" src="https://avatars.githubusercontent.com/u/22910338?v=4" alt="风轻云断 avatar" />
