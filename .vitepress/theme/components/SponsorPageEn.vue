@@ -33,21 +33,57 @@
     </div>
 
     <section class="sponsor-devs">
-      <h2>Developers</h2>
+      <h2>Sponsors</h2>
 
       <div class="sponsor-devs__list">
-        <a class="sponsor-dev" href="https://github.com/line-6000" target="_blank" rel="noreferrer">@line-6000</a>
-        <a class="sponsor-dev" href="https://github.com/mar-heaven" target="_blank" rel="noreferrer">@mar-heaven</a>
-        <a class="sponsor-dev" href="https://github.com/assimon" target="_blank" rel="noreferrer">@assimon</a>
-        <a class="sponsor-dev" href="https://github.com/alphago9" target="_blank" rel="noreferrer">@alphago9</a>
-        <a class="sponsor-dev" href="https://github.com/Astra3456" target="_blank" rel="noreferrer">@Astra3456</a>
-        <a class="sponsor-dev" href="https://github.com/dbidib" target="_blank" rel="noreferrer">@dbidib</a>
-        <a class="sponsor-dev" href="https://github.com/waifudaisuki" target="_blank" rel="noreferrer">@waifudaisuki</a>
-        <a class="sponsor-dev" href="https://github.com/CarpCap" target="_blank" rel="noreferrer">@CarpCap</a>
-        <a class="sponsor-dev" href="https://github.com/BlueSkyXN" target="_blank" rel="noreferrer">@BlueSkyXN</a>
-        <a class="sponsor-dev" href="https://github.com/tbxark" target="_blank" rel="noreferrer">@tbxark</a>
-        <a class="sponsor-dev" href="https://github.com/jiamovo" target="_blank" rel="noreferrer">@jiamovo</a>
-        <a class="sponsor-dev" href="https://github.com/ZhangYiQiu" target="_blank" rel="noreferrer">@ZhangYiQiu</a>
+        <a class="sponsor-person" href="https://github.com/line-6000" target="_blank" rel="noreferrer">
+          <img class="sponsor-person__avatar" src="https://avatars.githubusercontent.com/u/154492442?v=4" alt="line-6000 avatar" />
+          <span class="sponsor-person__name">line-6000</span>
+        </a>
+        <a class="sponsor-person" href="https://github.com/mar-heaven" target="_blank" rel="noreferrer">
+          <img class="sponsor-person__avatar" src="https://avatars.githubusercontent.com/u/26325127?v=4" alt="Ginta avatar" />
+          <span class="sponsor-person__name">Ginta</span>
+        </a>
+        <a class="sponsor-person" href="https://github.com/assimon" target="_blank" rel="noreferrer">
+          <img class="sponsor-person__avatar" src="https://avatars.githubusercontent.com/u/35057561?v=4" alt="Assimon avatar" />
+          <span class="sponsor-person__name">Assimon</span>
+        </a>
+        <a class="sponsor-person" href="https://github.com/alphago9" target="_blank" rel="noreferrer">
+          <img class="sponsor-person__avatar" src="https://avatars.githubusercontent.com/u/82960628?v=4" alt="alphago9 avatar" />
+          <span class="sponsor-person__name">alphago9</span>
+        </a>
+        <a class="sponsor-person" href="https://github.com/Astra3456" target="_blank" rel="noreferrer">
+          <img class="sponsor-person__avatar" src="https://avatars.githubusercontent.com/u/167777041?v=4" alt="Astra3456 avatar" />
+          <span class="sponsor-person__name">Astra3456</span>
+        </a>
+        <a class="sponsor-person" href="https://github.com/dbidib" target="_blank" rel="noreferrer">
+          <img class="sponsor-person__avatar" src="https://avatars.githubusercontent.com/u/160333000?v=4" alt="dbidib avatar" />
+          <span class="sponsor-person__name">dbidib</span>
+        </a>
+        <a class="sponsor-person" href="https://github.com/waifudaisuki" target="_blank" rel="noreferrer">
+          <img class="sponsor-person__avatar" src="https://avatars.githubusercontent.com/u/102990112?v=4" alt="waifudaisuki avatar" />
+          <span class="sponsor-person__name">waifudaisuki</span>
+        </a>
+        <a class="sponsor-person" href="https://github.com/CarpCap" target="_blank" rel="noreferrer">
+          <img class="sponsor-person__avatar" src="https://avatars.githubusercontent.com/u/39827081?v=4" alt="CarpCap avatar" />
+          <span class="sponsor-person__name">CarpCap</span>
+        </a>
+        <a class="sponsor-person" href="https://github.com/BlueSkyXN" target="_blank" rel="noreferrer">
+          <img class="sponsor-person__avatar" src="https://avatars.githubusercontent.com/u/63384277?v=4" alt="BlueSkyXN avatar" />
+          <span class="sponsor-person__name">BlueSkyXN</span>
+        </a>
+        <a class="sponsor-person" href="https://github.com/tbxark" target="_blank" rel="noreferrer">
+          <img class="sponsor-person__avatar" src="https://avatars.githubusercontent.com/u/9513891?v=4" alt="TBXark avatar" />
+          <span class="sponsor-person__name">TBXark</span>
+        </a>
+        <a class="sponsor-person" href="https://github.com/jiamovo" target="_blank" rel="noreferrer">
+          <img class="sponsor-person__avatar" src="https://avatars.githubusercontent.com/u/114427102?v=4" alt="jiamovo avatar" />
+          <span class="sponsor-person__name">jiamovo</span>
+        </a>
+        <a class="sponsor-person" href="https://github.com/ZhangYiQiu" target="_blank" rel="noreferrer">
+          <img class="sponsor-person__avatar" src="https://avatars.githubusercontent.com/u/22910338?v=4" alt="风轻云断 avatar" />
+          <span class="sponsor-person__name">风轻云断</span>
+        </a>
       </div>
     </section>
   </div>
