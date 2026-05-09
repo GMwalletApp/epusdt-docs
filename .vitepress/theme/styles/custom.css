@@ -95,6 +95,15 @@
   text-align: center;
 }
 
+.sponsor-address-copy {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
 .sponsor-address-block code {
   display: block;
   overflow-wrap: anywhere;
@@ -104,6 +113,10 @@
   font-size: 0.94rem;
   line-height: 1.7;
   text-align: center;
+}
+
+.sponsor-address-copy:hover code {
+  color: var(--vp-c-brand-2);
 }
 
 .sponsor-devs {

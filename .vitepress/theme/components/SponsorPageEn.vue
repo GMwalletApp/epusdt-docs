@@ -1,3 +1,13 @@
+<script setup lang="ts">
+const copyAddress = async (address: string) => {
+  try {
+    await navigator.clipboard.writeText(address);
+  } catch {
+    // ignore copy failures
+  }
+};
+</script>
+
 <template>
   <div class="sponsor-page">
     <p class="sponsor-intro">
@@ -14,7 +24,9 @@
 
         <div class="sponsor-address-block">
           <span class="sponsor-address-label">Wallet address</span>
-          <code>TUsn5Nhi2P12dQ2ecrocUX6e6Jsi6EE8TY</code>
+          <button class="sponsor-address-copy" type="button" @click="copyAddress('TUsn5Nhi2P12dQ2ecrocUX6e6Jsi6EE8TY')">
+            <code>TUsn5Nhi2P12dQ2ecrocUX6e6Jsi6EE8TY</code>
+          </button>
         </div>
       </section>
 
@@ -27,7 +39,9 @@
 
         <div class="sponsor-address-block">
           <span class="sponsor-address-label">Wallet address</span>
-          <code>0x6c63989c22e89e6f76105f399243ef6b417b205b</code>
+          <button class="sponsor-address-copy" type="button" @click="copyAddress('0x6c63989c22e89e6f76105f399243ef6b417b205b')">
+            <code>0x6c63989c22e89e6f76105f399243ef6b417b205b</code>
+          </button>
         </div>
       </section>
     </div>
