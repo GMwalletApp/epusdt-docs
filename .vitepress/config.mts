@@ -35,6 +35,7 @@ export default defineConfig({
           { text: "Home", link: "/" },
           { text: "Guide", link: "/guide/intro" },
           { text: "API", link: "/api/reference" },
+          { text: "Sponsor", link: "/guide/sponsor" },
         ],
         sidebar: {
           "/guide/": [
@@ -44,6 +45,7 @@ export default defineConfig({
                 { text: "Introduction", link: "/guide/intro" },
                 { text: "Release Notes", link: "/guide/changelog" },
                 { text: "FAQ", link: "/guide/faq" },
+                { text: "Sponsor", link: "/guide/sponsor" },
               ],
             },
             {
@@ -86,6 +88,7 @@ export default defineConfig({
           { text: "首頁", link: "/zh/" },
           { text: "指南", link: "/zh/guide/intro" },
           { text: "API 文件", link: "/zh/api/reference" },
+          { text: "贊助", link: "/zh/guide/sponsor" },
         ],
         sidebar: {
           "/zh/guide/": [
@@ -95,6 +98,7 @@ export default defineConfig({
                 { text: "項目簡介", link: "/zh/guide/intro" },
                 { text: "版本日誌", link: "/zh/guide/changelog" },
                 { text: "常見問題", link: "/zh/guide/faq" },
+                { text: "贊助支持", link: "/zh/guide/sponsor" },
               ],
             },
             {
