@@ -8,6 +8,39 @@ This page summarizes published Epusdt releases using the repository's actual Git
 - Supplementary source: tag compare diffs and merged commit messages
 - This page avoids inventing features that are not visible in release or code history
 
+## v0.9.6
+
+- Release tag: `v0.9.6`
+- Published at: `2026-05-11T10:09:43Z`
+- Official release note: `Full Changelog: https://github.com/GMWalletApp/epusdt/compare/v0.9.5...v0.9.6`
+
+### User-visible changes
+
+- First-run bootstrap now prints the initial admin credentials to the console, making the first login discoverable without needing to inspect the database.
+- Admin appearance settings now support `background_color` and `background_image_url` fields for customizing the payment page backdrop.
+- Payment amount precision is now configurable — operators can set how many decimal places are applied when generating payment amounts.
+- TRON chain token resolution is now dynamic in the block listener, removing the need to hard-code token contract addresses at startup.
+- README was split into separate English (`README.en.md`) and Simplified Chinese (`README.zh-CN.md`) files; the root `README.md` now focuses on the Chinese audience.
+- The `plugins/` directory and bundled `dujiaoka` plugin example were removed from the repository.
+
+### Deployment and configuration changes
+
+- No new environment variable is required.
+- The split README files are documentation-only changes and do not affect runtime behavior.
+
+### API changes
+
+- `GET /payments/gmpay/v1/config` response now includes `background_color` and `background_image_url` fields from appearance settings.
+- `GET /payments/gmpay/v1/config` response now includes `payment_amount_precision` from payment settings.
+- No routes were added or removed.
+
+### Evidence used
+
+- GitHub release `v0.9.6`
+- Compare diff `v0.9.5...v0.9.6`
+- Commits `1a35cab`, `2d546e3`, `a8a3b86`, `3e0be9b`, `7c9e3e1`, `84972ea`, `1c805ed`, `8d2ddbd`, `07d1d83`, `7a905ba`, `4dc1ba8`
+- Files: `src/bootstrap/bootstrap.go`, `src/controller/admin/settings_controller.go`, `src/model/data/settings_data.go`, `src/model/mdb/settings.go`, `src/task/listen_trc20_block.go`
+
 ## v0.9.5
 
 - Release tag: `v0.9.5`
