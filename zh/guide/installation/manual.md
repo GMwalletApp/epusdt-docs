@@ -23,7 +23,7 @@ cd /opt/epusdt
 以下示例適用於 Linux x86_64 / amd64：
 
 ```bash
-wget https://github.com/GMwalletApp/epusdt/releases/download/v0.9.5/epusdt-0.9.5-linux-amd64.tar.gz -O epusdt.tar.gz
+wget https://github.com/GMwalletApp/epusdt/releases/download/v0.9.6/epusdt-0.9.6-linux-amd64.tar.gz -O epusdt.tar.gz
 tar -xzf epusdt.tar.gz
 rm epusdt.tar.gz
 ```

@@ -2,6 +2,37 @@
 
 本文基於 `GMwalletApp/epusdt` 倉庫中實際存在的 GitHub Releases、Tag、Release Note 和程式碼差異整理，不憑空編寫未釋出特性。
 
+## v0.9.6
+
+- 釋出標籤：`v0.9.6`
+- 釋出時間：`2026-05-11T10:09:43Z`
+- 官方釋出說明：`Full Changelog: https://github.com/GMWalletApp/epusdt/compare/v0.9.5...v0.9.6`
+
+### 使用者可見變更
+
+- 移除 OkPay 整合。v0.9.5 中加入的 `okpay` 支付切換路徑已不再存在，所有支付流程現在均透過鏈上網路選擇路徑處理。
+- TRON 鏈描描從基於區塊的監聽器重構為基於任務的排程器，內部輪詢模型有所改變，但對商戶側 API 介面無影響。
+- 新增內建靜態支付頁面，直接打包在二進位制檔案中，與管理後台 SPA 獨立。
+- 設定檔處理大幅簡化，移除或合併了多個歷史遗留設定項。
+
+### 部署與配置變更
+
+- 未引入新的環境變數。
+- 如果你此前依賴 OkPay 回調（`POST /payments/okpay/v1/notify`）或 `network=okpay` 切換路徑，這些端點已不再存在。
+- TRON 監聽行為的變更屬於內部實作調整，不需要新的 RPC 或配置鍵。
+
+### API 變更
+
+- 移除：`POST /payments/okpay/v1/notify`
+- 移除：`POST /pay/switch-network` 的 `network=okpay` 選項
+- 未新增公開 API 路由。
+
+### 依據來源
+
+- GitHub release `v0.9.6`
+- Compare diff `v0.9.5...v0.9.6`
+- Commits `dc1177a`、`06856e5`、`89be1fc`
+
 ## v0.9.5
 
 - 釋出標籤：`v0.9.5`
