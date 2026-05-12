@@ -15,3 +15,16 @@
 因為 `GET /payments/gmpay/v1/config` 是根據你自己後臺資料即時計算的。
 
 其中 `data.supported_assets` 會受到已啟用的 chains、chain_tokens 與可用 wallet_address 影響。
+
+## 鏈設定
+
+### Tron 是否需要額外的 API Key？
+
+是的。必須在後臺配置 [TronGrid API Key](https://www.trongrid.io/)，否則節點請求將受到速率限制或被拒絕。
+
+### 各鏈的 RPC 位址應使用哪種協定？
+
+- **Tron** 和 **Solana（SOL）**：使用 **HTTP/HTTPS** 端點。
+- **其他所有鏈**（如 ETH、BSC、Polygon 等）：使用 **WSS**（WebSocket）端點。
+
+協定填錯將導致交易監聽靜默失效。
