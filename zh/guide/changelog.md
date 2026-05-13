@@ -2,6 +2,33 @@
 
 本文基於 `GMwalletApp/epusdt` 倉庫中實際存在的 GitHub Releases、Tag、Release Note 和程式碼差異整理，不憑空編寫未釋出特性。
 
+## v0.9.7
+
+- 釋出標籤：`v0.9.7`
+- 釋出時間：`2026-05-13T09:01:26Z`
+- 官方釋出說明：`Full Changelog: https://github.com/GMWalletApp/epusdt/compare/v0.9.6...v0.9.7`
+
+### 使用者可見變更
+
+- `README.zh-CN.md` 已刪除；`README.md` 現為唯一主 README，將文件整合為單一入口。
+- 前端管理後台資源（Service Worker precache manifest 及所有打包 JS 區塊）已重新構建，所有靜態資源以更新後的內容雜湊重新命名，修復已載入過管理後台的使用者可能遇到的快取問題。
+
+### 部署與配置變更
+
+- 本次釋出未引入新的環境變數。
+- 無執行時行為變更——本次釋出僅涉及前端資源重新整理與文件整理。
+
+### API 變更
+
+- 未新增、移除或修改任何 API 路由。
+
+### 依據來源
+
+- GitHub release `v0.9.7`
+- 對比差異 `v0.9.6...v0.9.7`
+- 提交 `52b171b`、`4a69b7c`、`b0093c4`、`864eb59`
+- 關鍵檔案：`README.md`、`README.zh-CN.md`、`src/www/sw.js`、`src/www/index.html`、`src/www/assets/*`
+
 ## v0.9.6
 
 - 釋出標籤：`v0.9.6`

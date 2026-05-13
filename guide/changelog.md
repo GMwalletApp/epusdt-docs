@@ -8,6 +8,33 @@ This page summarizes published Epusdt releases using the repository's actual Git
 - Supplementary source: tag compare diffs and merged commit messages
 - This page avoids inventing features that are not visible in release or code history
 
+## v0.9.7
+
+- Release tag: `v0.9.7`
+- Published at: `2026-05-13T09:01:26Z`
+- Official release note: `Full Changelog: https://github.com/GMWalletApp/epusdt/compare/v0.9.6...v0.9.7`
+
+### User-visible changes
+
+- `README.zh-CN.md` was removed; `README.md` is now the sole main readme, consolidating documentation into a single entry point.
+- Frontend admin assets (service worker precache manifest and all bundled JS chunks) were rebuilt with updated content hashes, resolving stale-cache issues for users who had previously loaded the admin panel.
+
+### Deployment and configuration changes
+
+- No new environment variables were introduced.
+- No runtime behavior changes — this is a frontend asset refresh and documentation cleanup only.
+
+### API changes
+
+- No API routes were added, removed, or modified.
+
+### Evidence used
+
+- GitHub release `v0.9.7`
+- Compare diff `v0.9.6...v0.9.7`
+- Commits `52b171b`, `4a69b7c`, `b0093c4`, `864eb59`
+- Files: `README.md`, `README.zh-CN.md`, `src/www/sw.js`, `src/www/index.html`, `src/www/assets/*`
+
 ## v0.9.6
 
 - Release tag: `v0.9.6`
