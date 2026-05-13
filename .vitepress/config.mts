@@ -86,6 +86,12 @@ export default defineConfig({
       title: "Epusdt 文件",
       description: "Epusdt（簡易 USDT 收款）— 基於 Go 的私有化多鏈加密收款閘道，支援 GMPay API、EPay 相容跳轉流程與託管收銀臺，並提供 Telegram 通知。",
       themeConfig: {
+        darkModeSwitchLabel: "外觀",
+        sidebarMenuLabel: "目錄",
+        returnToTopLabel: "回到頂部",
+        outlineTitle: "本頁目錄",
+        lastUpdatedText: "最後更新",
+        langMenuLabel: "切換語言",
         nav: [
           { text: "首頁", link: "/zh/" },
           { text: "指南", link: "/zh/guide/intro" },

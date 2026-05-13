@@ -1,9 +1,10 @@
 // https://vitepress.dev/guide/custom-theme
-import Teek from "vitepress-theme-teek";
+import Teek, { zhCn } from "vitepress-theme-teek";
 import "vitepress-theme-teek/index.css";
 import "./styles/custom.css";
 import type { Theme } from "vitepress";
-import { h } from "vue";
+import { useData } from "vitepress";
+import { h, computed } from "vue";
 import GithubStarButton from "./components/GithubStarButton.vue";
 import BreadcrumbLocaleFix from "./components/BreadcrumbLocaleFix.vue";
 import SponsorPageEn from "./components/SponsorPageEn.vue";
@@ -16,9 +17,14 @@ const theme: Theme = {
     app.component("SponsorPageZh", SponsorPageZh);
   },
   Layout: () => {
-    const Layout = Teek.Layout;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const Layout = Teek.Layout as any;
+    const { localeIndex } = useData();
+    const locale = computed(() =>
+      localeIndex.value === "zh" ? zhCn : undefined
+    );
 
-    return h(Layout, null, {
+    return h(Layout, { locale: locale.value }, {
       "nav-bar-content-after": () => h(GithubStarButton),
       "doc-before": () => h(BreadcrumbLocaleFix),
     });
