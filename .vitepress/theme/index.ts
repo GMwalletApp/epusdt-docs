@@ -5,6 +5,7 @@ import "./styles/custom.css";
 import type { Theme } from "vitepress";
 import { h } from "vue";
 import GithubStarButton from "./components/GithubStarButton.vue";
+import BreadcrumbLocaleFix from "./components/BreadcrumbLocaleFix.vue";
 import SponsorPageEn from "./components/SponsorPageEn.vue";
 import SponsorPageZh from "./components/SponsorPageZh.vue";
 
@@ -19,6 +20,7 @@ const theme: Theme = {
 
     return h(Layout, null, {
       "nav-bar-content-after": () => h(GithubStarButton),
+      "doc-before": () => h(BreadcrumbLocaleFix),
     });
   },
 };
