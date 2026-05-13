@@ -56,9 +56,10 @@ Current source returns frontend-facing payment config in one payload.
 Important fields inside `data` include:
 
 - `supported_assets` — enabled chain/token pairs that also have at least one available wallet address
-- `site` — public cashier branding such as cashier name, logo URL, website title, and support link
+- `site` — public cashier branding: cashier name, logo URL, website title, support link, `background_color`, and `background_image_url`
 - `epay` — EPay default token / currency / network
 - `okpay` — public OkPay toggle / token allowance config
+- `amount_precision` — decimal places used when computing crypto amounts (range 2–6, default 2; configured via `system.amount_precision`)
 
 So if a client needs dynamic network/token options, read them from `data.supported_assets` instead of hardcoding a docs-era static list.
 

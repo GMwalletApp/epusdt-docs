@@ -56,9 +56,10 @@ GET /payments/gmpay/v1/config
 `data` 內的重要欄位包括：
 
 - `supported_assets` —— 目前後臺已啟用、且該鏈上至少存在一個可用錢包地址的鏈 / 代幣組合
-- `site` —— 收銀臺公開品牌資訊，例如 cashier 名稱、logo URL、網站標題、支援連結
+- `site` —— 收銀臺公開品牌資訊：cashier 名稱、logo URL、網站標題、支援連結、`background_color`（背景色）、`background_image_url`（背景圖片 URL）
 - `epay` —— EPay 預設代幣 / 法幣 / 網路
 - `okpay` —— 公開的 OkPay 開關與可用代幣設定
+- `amount_precision` —— 計算加密貨幣金額時使用的小數位數（範圍 2–6，預設 2；透過後臺 `system.amount_precision` 設定）
 
 所以如果前端需要動態展示鏈 / 代幣，應該從 `data.supported_assets` 讀取，而不是把文件裡某個固定清單當成永遠正確。
 
