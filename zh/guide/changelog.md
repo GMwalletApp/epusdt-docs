@@ -10,29 +10,30 @@
 
 ### 使用者可見變更
 
-- 移除 OkPay 整合。v0.9.5 中加入的 `okpay` 支付切換路徑已不再存在，所有支付流程現在均透過鏈上網路選擇路徑處理。
-- TRON 鏈描描從基於區塊的監聽器重構為基於任務的排程器，內部輪詢模型有所改變，但對商戶側 API 介面無影響。
-- 新增內建靜態支付頁面，直接打包在二進位制檔案中，與管理後台 SPA 獨立。
-- 設定檔處理大幅簡化，移除或合併了多個歷史遗留設定項。
+- 首次啟動時，初始管理員帳號與密碼現在會直接列印到控制台，不需要再去查資料庫即可完成第一次登入。
+- 管理後台外觀設定新增 `background_color` 與 `background_image_url` 欄位，可自訂收銀臺頁面的背景色與背景圖片。
+- 支付金額精度現在可設定，運營者可配置產生支付金額時保留幾位小數。
+- TRON 鏈代幣解析改為在區塊監聽器中動態取得，不再需要在啟動時寫死代幣合約地址。
 - `README.md` 改為簡體中文主 README；英文版獨立為 `README.en.md`；`README.zh-CN.md` 已在後續 commit（4a69b7c8）中刪除。
+- `plugins/` 目錄與內建的 `dujiaoka` 外掛示例已從倉庫中移除。
 
 ### 部署與配置變更
 
 - 未引入新的環境變數。
-- 如果你此前依賴 OkPay 回調（`POST /payments/okpay/v1/notify`）或 `network=okpay` 切換路徑，這些端點已不再存在。
-- TRON 監聽行為的變更屬於內部實作調整，不需要新的 RPC 或配置鍵。
+- README 重整屬純文件調整，不影響執行時行為。
 
 ### API 變更
 
-- 移除：`POST /payments/okpay/v1/notify`
-- 移除：`POST /pay/switch-network` 的 `network=okpay` 選項
-- 未新增公開 API 路由。
+- `GET /payments/gmpay/v1/config` 回應新增 `background_color` 與 `background_image_url` 欄位（來自外觀設定）。
+- `GET /payments/gmpay/v1/config` 回應新增 `payment_amount_precision` 欄位（來自支付設定）。
+- 本次釋出未新增或移除任何路由。
 
 ### 依據來源
 
 - GitHub release `v0.9.6`
 - Compare diff `v0.9.5...v0.9.6`
-- Commits `dc1177a`、`06856e5`、`89be1fc`、`4a69b7c`
+- 提交 `1a35cab`、`2d546e3`、`a8a3b86`、`3e0be9b`、`7c9e3e1`、`84972ea`、`1c805ed`、`8d2ddbd`、`07d1d83`、`7a905ba`、`4dc1ba8`、`4a69b7c`
+- 關鍵檔案：`src/bootstrap/bootstrap.go`、`src/controller/admin/settings_controller.go`、`src/model/data/settings_data.go`、`src/model/mdb/settings.go`、`src/task/listen_trc20_block.go`
 
 ## v0.9.5
 
