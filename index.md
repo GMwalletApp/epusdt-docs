@@ -23,6 +23,9 @@ hero:
     - theme: alt
       text: 繁體中文
       link: /zh/
+    - theme: alt
+      text: FAQ
+      link: /guide/faq
 
 features:
   - icon: 🐳

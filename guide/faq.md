@@ -29,3 +29,29 @@ Without it the node requests will be rate-limited or rejected.
 - **All other chains** (e.g. ETH, BSC, Polygon …): use a **WSS** (WebSocket) endpoint.
 
 Setting the wrong protocol will silently prevent transaction monitoring from working.
+
+## Exchange Rate Settings
+
+The system uses an exchange rate API to convert fiat amounts to crypto equivalents.
+
+### Which exchange rate API is used?
+
+### Which exchange rate API is used?
+
+The system can be configured to fetch rates from the community-provided [Fawaz Ahmed Currency API](https://github.com/fawazahmed0/exchange-api).
+
+API base URL:
+
+https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/
+
+Example - fetch USDT rates:
+
+https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usdt.json
+
+> **Note:** This is a community-maintained free API. Accuracy is not guaranteed.
+> For production environments, consider using a paid exchange rate provider.
+
+### How do I configure the exchange rate API?
+
+In the admin panel, go to **Settings - Exchange Rate** and enter your preferred API endpoint.
+The system will poll it periodically to keep rates up to date.
